@@ -22,6 +22,7 @@ import {
   Table,
   TableColumnProps,
   DatePicker,
+  notification,
 } from "antd";
 import { IAddParams, IParams } from "./interface";
 import modal from "antd/es/modal";
@@ -35,9 +36,11 @@ import { isSuperAdmin } from "../../utils/helpers";
 
 const { RangePicker } = DatePicker;
 const Admin = () => {
+  const isLoggedIn = localStorage.getItem("status");
   const userInfo = useSelector((state: RootState) => state.userInfo);
   const [form] = useForm();
   const [messageApi, contextHolder] = message.useMessage();
+  const [notifApi, notifContextHolder] = notification.useNotification();
   const [data, setData] = useState([]);
   const [isLoading, setisLoading] = useState(true);
   const [openAddModal, setOpenAddModal] = useState(false);
@@ -270,9 +273,19 @@ const Admin = () => {
     });
   }, [addParams, form]);
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      notifApi.success({
+        message: `Logged in Successfully`,
+        placement: "topRight",
+      });
+    }
+  }, []);
+
   return (
     <div>
       {contextHolder}
+      {notifContextHolder}
       <TitlePage title="Admin Management" />
       <Space direction="vertical" size={"small"}>
         <Form>

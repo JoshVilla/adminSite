@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store/store";
 import { getUserInfo } from "../../store/slice/userInfoSlice";
+import { delayTimer } from "../../utils/helpers";
 
 const Login = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,8 +27,13 @@ const Login = () => {
           setIsLoading(false);
           throwMessage(res.status, res.data.message);
           if (res.status === 200) {
+            // let timer = 3;
             navigate("admin/adminManagement");
             dispatch(getUserInfo(res.data.data));
+            const func = () => {
+              localStorage.setItem("status", "loggedIn");
+            };
+            delayTimer(1, func);
           }
         })
         .catch((err) => {

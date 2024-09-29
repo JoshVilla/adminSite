@@ -37,6 +37,7 @@ const App: React.FC = () => {
   const handleLogOut = () => {
     navigate("/");
     dispatch(getUserInfo(null));
+    localStorage.removeItem("status");
   };
 
   const items: MenuProps["items"] = [

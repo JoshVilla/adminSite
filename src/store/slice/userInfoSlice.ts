@@ -7,6 +7,8 @@ interface IUserInfo {
   password: string;
   isSuperAdmin: number;
   isActive: number;
+  avatar: string;
+  avatarMegaLink: string;
 }
 
 // Initial state typing

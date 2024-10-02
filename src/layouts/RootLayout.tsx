@@ -27,6 +27,10 @@ const App: React.FC = () => {
   const username = useSelector(
     (state: RootState) => state.userInfo?.userInfo?.username
   );
+  const avatar = useSelector(
+    (state: RootState) => state.userInfo?.userInfo?.avatarMegaLink
+  );
+
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [collapsed, setCollapsed] = useState(false);
@@ -50,6 +54,12 @@ const App: React.FC = () => {
   const handleMenu: MenuProps["onClick"] = (e) => {
     navigate(`${e.key}`);
   };
+
+  const getDirectImageLink = (link: string) => {
+    const idKey = link?.split("/").pop(); // Get the last part of the URL
+    return `https://mega.nz/file/${idKey}`; // Format the link accordingly
+  };
+
   return (
     <Layout>
       <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -84,9 +94,16 @@ const App: React.FC = () => {
           />
           <div style={{ marginRight: 20 }}>
             <Flex gap={10} align="center">
-              <Avatar style={{ backgroundColor: "#4096ff" }}>
-                {username?.substring(0, 1)}
-              </Avatar>
+              {avatar ? (
+                <Avatar
+                  src={avatar} // Use the actual avatar URL from the state
+                  alt="User Avatar"
+                />
+              ) : (
+                <Avatar style={{ backgroundColor: "#4096ff" }}>
+                  {username?.substring(0, 1)}
+                </Avatar>
+              )}
               <Dropdown menu={{ items }}>
                 <a onClick={(e) => e.preventDefault()}>
                   <Space>

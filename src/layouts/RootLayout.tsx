@@ -28,7 +28,7 @@ const App: React.FC = () => {
     (state: RootState) => state.userInfo?.userInfo?.username
   );
   const avatar = useSelector(
-    (state: RootState) => state.userInfo?.userInfo?.avatarMegaLink
+    (state: RootState) => state.userInfo?.userInfo?.avatar
   );
 
   const navigate = useNavigate();
@@ -55,10 +55,7 @@ const App: React.FC = () => {
     navigate(`${e.key}`);
   };
 
-  const getDirectImageLink = (link: string) => {
-    const idKey = link?.split("/").pop(); // Get the last part of the URL
-    return `https://mega.nz/file/${idKey}`; // Format the link accordingly
-  };
+  console.log(avatar);
 
   return (
     <Layout>

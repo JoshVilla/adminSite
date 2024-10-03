@@ -1,4 +1,4 @@
-import { get, post } from "./service";
+import { deleteData, get, post } from "./service";
 
 export const getAdmins = (params = {}) => {
   return post("http://localhost:5000/get", params);
@@ -13,7 +13,7 @@ export const addAdmin = (params: {}) => {
 };
 
 export const deleteAdmin = (params: {}) => {
-  return post("http://localhost:5000/delete", params);
+  return deleteData("http://localhost:5000/delete", params);
 };
 
 export const saveAdmin = (params: {}) => {

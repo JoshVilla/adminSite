@@ -21,4 +21,5 @@ export interface IAddParams {
   password: string;
   isSuperAdmin: Number;
   createdAt: string;
+  avatar: any;
 }

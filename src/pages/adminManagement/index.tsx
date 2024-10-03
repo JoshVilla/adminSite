@@ -23,7 +23,9 @@ import {
   TableColumnProps,
   DatePicker,
   notification,
+  Upload,
 } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import { IAddParams, IParams } from "./interface";
 import modal from "antd/es/modal";
 import moment from "moment";
@@ -54,6 +56,7 @@ const Admin = () => {
     password: "",
     isSuperAdmin: 1,
     createdAt: moment().format("LL"),
+    avatar: "",
   });
   const [params, setParams] = useState<IParams>({
     username: "",
@@ -254,11 +257,42 @@ const Admin = () => {
       password: "",
       isSuperAdmin: 1,
       createdAt: moment().format("LL"),
+      avatar: null,
     });
   };
 
   const handleVerifiedCaptcha = (result: boolean) => {
     if (result) handleOpenModal("isEditMode", editRecords);
+  };
+
+  const uploadOnchange = (info) => {
+    // Get the file list
+    const { file } = info;
+
+    // If the file is uploading or the upload was successful
+    if (file.status === "done") {
+      // Convert the uploaded file to base64 for preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Set the base64 image in the state or wherever needed
+        const base64Image = reader.result;
+        setAddParams((prev) => ({
+          ...prev,
+          avatar: file.originFileObj,
+        }));
+      };
+      reader.readAsDataURL(file.originFileObj);
+    }
+
+    console.log(addParams);
+  };
+
+  const beforeUpload = (file) => {
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      message.error("You can only upload image files!");
+    }
+    return isImage || Upload.LIST_IGNORE;
   };
 
   useEffect(() => {
@@ -393,6 +427,21 @@ const Admin = () => {
             status: addParams.isSuperAdmin,
           }}
         >
+          <Form.Item label="Profile (Optional)">
+            <Upload
+              onChange={uploadOnchange}
+              beforeUpload={beforeUpload}
+              maxCount={1}
+              customRequest={({ file, onSuccess }) => {
+                // Simulate a successful upload
+                setTimeout(() => {
+                  onSuccess("ok");
+                }, 0);
+              }}
+            >
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </Form.Item>
           <Form.Item label="Username" name="username">
             <Input
               placeholder="Input Username"

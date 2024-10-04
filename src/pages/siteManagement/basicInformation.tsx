@@ -1,18 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Flex,
-  Form,
-  Input,
-  message,
-  Space,
-  Typography,
-  Upload,
-} from "antd";
+import { Button, Form, Input, message, Space, Typography, Upload } from "antd";
 import { ISiteInfo } from "./interface";
 import { useForm } from "antd/es/form/Form";
 import { siteInfoUpdate } from "../../services/api";
 import { UploadOutlined } from "@ant-design/icons";
+
 type Props = {
   data: ISiteInfo;
 };
@@ -20,48 +12,46 @@ type Props = {
 const BasicInformation = ({ data }: Props) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(false);
+  const [logo, setLogo] = useState<File | null>(null); // Separate state for logo
   const [form] = useForm();
 
   useEffect(() => {
     form.setFieldsValue({
       ...data,
-      accounts: data.accounts || { facebook: "", twitter: "", tiktok: "" }, // Fallback if no accounts
+      accounts: data.accounts || { facebook: "", twitter: "", tiktok: "" },
     });
   }, [data, form]);
 
   const handleUpdate = () => {
-    setLoading((prev) => !prev);
-    const params = form.getFieldsValue();
+    setLoading(true);
+    const formValues = form.getFieldsValue();
+
+    const params = {
+      ...formValues,
+      logo, // Include the logo state if updated
+    };
+
+    console.log("Form values on submit:", params);
 
     siteInfoUpdate({ ...params, id: data._id }).then((res) => {
+      setLoading(false);
       if (res.status === 200) {
-        setLoading((prev) => !prev);
-        messageApi.open({
-          type: "success",
-          content: res.data.message,
-        });
+        messageApi.success(res.data.message);
+      } else {
+        messageApi.error("Update failed");
       }
     });
   };
 
-  const uploadOnchange = (info: any) => {
-    // Get the file list
+  const uploadOnChange = (info: any) => {
     const { file } = info;
 
-    // If the file is uploading or the upload was successful
     if (file.status === "done") {
-      const reader = new FileReader();
-      reader.onload = () => {
-        form.setFieldsValue({
-          ...data,
-          logo: file.originFileObj,
-        });
-      };
-      reader.readAsDataURL(file.originFileObj);
+      setLogo(file.originFileObj); // Set logo to the uploaded file
     }
   };
 
-  const beforeUpload = (file: any) => {
+  const beforeUpload = (file: File) => {
     const isImage = file.type.startsWith("image/");
     if (!isImage) {
       message.error("You can only upload image files!");
@@ -72,34 +62,23 @@ const BasicInformation = ({ data }: Props) => {
   return (
     <div>
       {contextHolder}
-      <Typography.Title level={3}>Basic Information </Typography.Title>
-      <Form
-        form={form}
-        initialValues={{
-          title: data.title,
-          address: data.address,
-          accounts: data.accounts || {
-            facebook: "",
-            twitter: "",
-            tiktok: "",
-          },
-        }}
-      >
+      <Typography.Title level={3}>Basic Information</Typography.Title>
+      <Form form={form}>
         <Space direction="vertical">
           {/* Profile */}
-          <Upload
-            onChange={uploadOnchange}
-            beforeUpload={beforeUpload}
-            maxCount={1}
-            customRequest={({ file, onSuccess }) => {
-              // Simulate a successful upload
-              setTimeout(() => {
-                onSuccess("ok");
-              }, 0);
-            }}
-          >
-            <Button icon={<UploadOutlined />}>Upload Profile</Button>
-          </Upload>
+          <Form.Item label="Logo" name="logo">
+            <Upload
+              onChange={uploadOnChange}
+              beforeUpload={beforeUpload}
+              maxCount={1}
+              customRequest={({ file, onSuccess }) => {
+                // Simulate a successful upload
+                setTimeout(() => onSuccess("ok"), 0);
+              }}
+            >
+              <Button icon={<UploadOutlined />}>Upload Profile</Button>
+            </Upload>
+          </Form.Item>
 
           {/* Title */}
           <Form.Item label="Title" name="title">
@@ -112,22 +91,21 @@ const BasicInformation = ({ data }: Props) => {
           </Form.Item>
 
           {/* Social Media Section */}
-          <div>
-            <Typography.Title level={5}>
-              Social Media Accounts Links
-            </Typography.Title>
-            <Flex gap={20}>
-              <Form.Item label="Facebook" name={["accounts", "facebook"]}>
-                <Input placeholder="Facebook Link" />
-              </Form.Item>
-              <Form.Item label="Twitter" name={["accounts", "twitter"]}>
-                <Input placeholder="Twitter Link" />
-              </Form.Item>
-              <Form.Item label="Tiktok" name={["accounts", "tiktok"]}>
-                <Input placeholder="Tiktok Link" />
-              </Form.Item>
-            </Flex>
-          </div>
+          <Typography.Title level={5}>
+            Social Media Accounts Links
+          </Typography.Title>
+          <Space>
+            <Form.Item label="Facebook" name={["accounts", "facebook"]}>
+              <Input placeholder="Facebook Link" />
+            </Form.Item>
+            <Form.Item label="Twitter" name={["accounts", "twitter"]}>
+              <Input placeholder="Twitter Link" />
+            </Form.Item>
+            <Form.Item label="Tiktok" name={["accounts", "tiktok"]}>
+              <Input placeholder="Tiktok Link" />
+            </Form.Item>
+          </Space>
+
           <Button loading={loading} type="primary" onClick={handleUpdate}>
             Update
           </Button>

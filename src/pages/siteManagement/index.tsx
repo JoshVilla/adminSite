@@ -23,6 +23,7 @@ const SiteManagement = () => {
       tiktok: "",
     },
     logo: "",
+    logoPublicId: "",
   });
   const items: TabsProps["items"] = [
     {

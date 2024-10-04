@@ -13,4 +13,5 @@ export interface ISiteInfo {
   mission: string;
   accounts: IAccounts;
   logo: "";
+  logoPublicId: "";
 }

@@ -33,7 +33,6 @@ import { useSelector } from "react-redux";
 import { RootState, store } from "../../store/store";
 import { useForm } from "antd/es/form/Form";
 import Captcha from "../../components/captcha/captcha";
-import ColumnGroup from "antd/es/table/ColumnGroup";
 import { isSuperAdmin } from "../../utils/helpers";
 
 const { RangePicker } = DatePicker;
@@ -51,6 +50,7 @@ const Admin = () => {
   const [openCaptcha, setOpenCaptcha] = useState(false);
   const [editRecords, setEditRecords] = useState({});
   const [editId, setEditId] = useState("");
+  const [loading, setLoading] = useState(false);
   const [addParams, setAddParams] = useState<IAddParams>({
     username: "",
     password: "",
@@ -161,9 +161,11 @@ const Admin = () => {
       });
       return;
     }
+    setLoading(true);
     await addAdmin(addParams).then((res) => {
       if (res.status === 200) {
         onLoad();
+        setLoading(false);
         setOpenAddModal(false);
         messageApi.open({
           type: "success",
@@ -174,6 +176,7 @@ const Admin = () => {
   };
 
   const handleSave = () => {
+    setLoading(true);
     const { username, password, isSuperAdmin } = addParams;
 
     const params = {
@@ -186,6 +189,7 @@ const Admin = () => {
       if ((res.status = 200)) {
         onLoad();
         setOpenAddModal(false);
+        setLoading(false);
         messageApi.open({
           type: "success",
           content: res.data.message,
@@ -410,6 +414,7 @@ const Admin = () => {
         width={600}
         footer={[
           <Button
+            loading={loading}
             key="submit"
             type="primary"
             htmlType="submit"

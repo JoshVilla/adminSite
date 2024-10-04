@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Button, Flex, Form, Input, message, Space, Typography } from "antd";
+import {
+  Button,
+  Flex,
+  Form,
+  Input,
+  message,
+  Space,
+  Typography,
+  Upload,
+} from "antd";
 import { ISiteInfo } from "./interface";
 import { useForm } from "antd/es/form/Form";
 import { siteInfoUpdate } from "../../services/api";
-
+import { UploadOutlined } from "@ant-design/icons";
 type Props = {
   data: ISiteInfo;
 };
@@ -20,11 +29,10 @@ const BasicInformation = ({ data }: Props) => {
     });
   }, [data, form]);
 
-  console.log(data, "data");
-
   const handleUpdate = () => {
     setLoading((prev) => !prev);
     const params = form.getFieldsValue();
+
     siteInfoUpdate({ ...params, id: data._id }).then((res) => {
       if (res.status === 200) {
         setLoading((prev) => !prev);
@@ -35,6 +43,32 @@ const BasicInformation = ({ data }: Props) => {
       }
     });
   };
+
+  const uploadOnchange = (info: any) => {
+    // Get the file list
+    const { file } = info;
+
+    // If the file is uploading or the upload was successful
+    if (file.status === "done") {
+      const reader = new FileReader();
+      reader.onload = () => {
+        form.setFieldsValue({
+          ...data,
+          logo: file.originFileObj,
+        });
+      };
+      reader.readAsDataURL(file.originFileObj);
+    }
+  };
+
+  const beforeUpload = (file: any) => {
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      message.error("You can only upload image files!");
+    }
+    return isImage || Upload.LIST_IGNORE;
+  };
+
   return (
     <div>
       {contextHolder}
@@ -52,6 +86,21 @@ const BasicInformation = ({ data }: Props) => {
         }}
       >
         <Space direction="vertical">
+          {/* Profile */}
+          <Upload
+            onChange={uploadOnchange}
+            beforeUpload={beforeUpload}
+            maxCount={1}
+            customRequest={({ file, onSuccess }) => {
+              // Simulate a successful upload
+              setTimeout(() => {
+                onSuccess("ok");
+              }, 0);
+            }}
+          >
+            <Button icon={<UploadOutlined />}>Upload Profile</Button>
+          </Upload>
+
           {/* Title */}
           <Form.Item label="Title" name="title">
             <Input placeholder="Input Title of the Site" />

@@ -12,4 +12,5 @@ export interface ISiteInfo {
   vision: string;
   mission: string;
   accounts: IAccounts;
+  logo: "";
 }

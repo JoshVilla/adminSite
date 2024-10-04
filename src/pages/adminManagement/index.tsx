@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TitlePage from "../../components/titlePage/titlePage";
+import style from "./style.module.scss";
 import {
   addAdmin,
   deleteAdmin,
@@ -254,6 +255,7 @@ const Admin = () => {
   };
 
   const handleCloseModal = () => {
+    setLoading(false);
     setOpenAddModal(false);
     form.resetFields();
     setAddParams({
@@ -269,17 +271,14 @@ const Admin = () => {
     if (result) handleOpenModal("isEditMode", editRecords);
   };
 
-  const uploadOnchange = (info) => {
+  const uploadOnchange = (info: any) => {
     // Get the file list
     const { file } = info;
 
     // If the file is uploading or the upload was successful
     if (file.status === "done") {
-      // Convert the uploaded file to base64 for preview
       const reader = new FileReader();
       reader.onload = () => {
-        // Set the base64 image in the state or wherever needed
-        const base64Image = reader.result;
         setAddParams((prev) => ({
           ...prev,
           avatar: file.originFileObj,
@@ -287,11 +286,9 @@ const Admin = () => {
       };
       reader.readAsDataURL(file.originFileObj);
     }
-
-    console.log(addParams);
   };
 
-  const beforeUpload = (file) => {
+  const beforeUpload = (file: any) => {
     const isImage = file.type.startsWith("image/");
     if (!isImage) {
       message.error("You can only upload image files!");
@@ -444,7 +441,7 @@ const Admin = () => {
                 }, 0);
               }}
             >
-              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+              <Button icon={<UploadOutlined />}>Upload Profile</Button>
             </Upload>
           </Form.Item>
           <Form.Item label="Username" name="username">

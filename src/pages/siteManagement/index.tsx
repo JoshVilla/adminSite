@@ -22,6 +22,7 @@ const SiteManagement = () => {
       twitter: "",
       tiktok: "",
     },
+    logo: "",
   });
   const items: TabsProps["items"] = [
     {
@@ -38,8 +39,6 @@ const SiteManagement = () => {
   useEffect(() => {
     siteInfoApi({}).then((res) => {
       const data = res.data;
-      console.log(res, "res");
-
       setSiteInfos(data[0]);
     });
   }, []);

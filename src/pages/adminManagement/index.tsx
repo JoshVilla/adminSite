@@ -19,6 +19,7 @@ import {
   DatePicker,
   notification,
   Upload,
+  Avatar,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { IAddParams, IParams } from "./interface";
@@ -74,6 +75,23 @@ const Admin = () => {
   };
 
   const columns: TableColumnProps[] = [
+    {
+      key: 1,
+      title: "Profile",
+      dataIndex: "avatar",
+      align: "center",
+      width: 50,
+      render: (_value, records) => {
+        return records.avatar ? (
+          <img src={records.avatar} alt="" className={style.classProfile} />
+        ) : (
+          <Avatar style={{ backgroundColor: "#4096ff" }}>
+            {" "}
+            {records.username?.substring(0, 1)}{" "}
+          </Avatar>
+        );
+      },
+    },
     {
       key: 1,
       title: "Username",

@@ -178,13 +178,15 @@ const Admin = () => {
 
   const handleSave = () => {
     setLoading(true);
-    const { username, password, isSuperAdmin } = addParams;
+    const { username, password, isSuperAdmin, avatar } = addParams;
+    console.log(addParams);
 
     const params = {
       username,
       password,
       isSuperAdmin,
       id: editId,
+      avatar,
     };
     saveAdmin(params).then((res) => {
       if ((res.status = 200)) {

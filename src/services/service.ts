@@ -15,20 +15,29 @@ export const post = async (url: string, params = {}) => {
   let hasFileType = false;
   const formData = new FormData();
 
-  // Check if any param value is an instance of File or Blob
   for (const key in params) {
-    if (params[key] instanceof File || params[key] instanceof Blob) {
+    const value = params[key];
+
+    // Handle files or blobs
+    if (value instanceof File || value instanceof Blob) {
       hasFileType = true;
-      formData.append(key, params[key]); // Add file data to FormData
-    } else {
-      formData.append(key, params[key]); // Add other form data
+      formData.append(key, value); // Add file to FormData
+    }
+    // Handle objects (like 'accounts') by stringifying them to JSON
+    else if (typeof value === "object" && value !== null) {
+      hasFileType = true;
+      formData.append(key, JSON.stringify(value)); // Serialize objects to JSON
+    }
+    // Handle primitive types (string, number, boolean)
+    else {
+      formData.append(key, value);
     }
   }
 
-  // Choose the correct data format
-  const data = hasFileType ? formData : { ...params };
+  // Decide whether to use FormData or raw JSON depending on the presence of file uploads
+  const data = hasFileType ? formData : JSON.stringify(params);
 
-  // Make the request with the appropriate content type
+  // Make the request with the appropriate headers
   return await axios({
     method: "post",
     url,

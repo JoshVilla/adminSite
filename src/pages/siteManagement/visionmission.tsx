@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import style from "./style.module.scss";
 import { ISiteInfo } from "./interface";
 import { useForm } from "antd/es/form/Form";
-import { siteInfoUpdate } from "../../services/api";
+import { siteInfoUpdate } from "@/services/api";
 const { TextArea } = Input;
 type Props = {
   data: ISiteInfo;

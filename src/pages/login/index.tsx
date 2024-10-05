@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import style from "./style.module.scss";
 import { Button, Form, Input, message } from "antd";
-import { loginApi } from "../../services/api";
+import { loginApi } from "@/services/api";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../store/store";
-import { getUserInfo } from "../../store/slice/userInfoSlice";
-import { delayTimer } from "../../utils/helpers";
+import { AppDispatch } from "@/store/store";
+import { getUserInfo } from "@/store/slice/userInfoSlice";
+import { delayTimer } from "@/utils/helpers";
 
 const Login = () => {
   const dispatch = useDispatch<AppDispatch>();

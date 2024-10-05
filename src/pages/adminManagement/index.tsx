@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
-import TitlePage from "../../components/titlePage/titlePage";
 import style from "./style.module.scss";
-import {
-  addAdmin,
-  deleteAdmin,
-  getAdmins,
-  saveAdmin,
-} from "../../services/api";
+import { addAdmin, deleteAdmin, getAdmins, saveAdmin } from "@/services/api";
 import base64 from "base-64";
 import {
   Badge,
@@ -31,10 +25,11 @@ import { IAddParams, IParams } from "./interface";
 import modal from "antd/es/modal";
 import moment from "moment";
 import { useSelector } from "react-redux";
-import { RootState, store } from "../../store/store";
+import { RootState, store } from "@/store/store";
 import { useForm } from "antd/es/form/Form";
-import Captcha from "../../components/captcha/captcha";
-import { isSuperAdmin } from "../../utils/helpers";
+import Captcha from "@/components/captcha/captcha";
+import { isSuperAdmin } from "@/utils/helpers";
+import TitlePage from "@/components/titlePage/titlePage";
 
 const { RangePicker } = DatePicker;
 const Admin = () => {
@@ -437,10 +432,12 @@ const Admin = () => {
               beforeUpload={beforeUpload}
               maxCount={1}
               customRequest={({ file, onSuccess }) => {
-                // Simulate a successful upload
-                setTimeout(() => {
-                  onSuccess("ok");
-                }, 0);
+                // Check if onSuccess is defined before calling it
+                if (onSuccess) {
+                  setTimeout(() => {
+                    onSuccess("ok"); // Simulate a successful upload
+                  }, 0);
+                }
               }}
             >
               <Button icon={<UploadOutlined />}>Upload Profile</Button>

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import TitlePage from "../../components/titlePage/titlePage";
+import TitlePage from "@/components/titlePage/titlePage";
 import { Tabs, TabsProps } from "antd";
 import BasicInformation from "./basicInformation";
 import VisionMission from "./visionmission";
-import { siteInfo as siteInfoApi } from "../../services/api";
+import { siteInfo as siteInfoApi } from "@/services/api";
 import { ISiteInfo } from "./interface";
 
 const onChange = (key: string) => {

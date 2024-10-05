@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Form, Input, message, Space, Typography, Upload } from "antd";
 import { ISiteInfo } from "./interface";
 import { useForm } from "antd/es/form/Form";
-import { siteInfoUpdate } from "../../services/api";
+import { siteInfoUpdate } from "@/services/api";
 import { UploadOutlined } from "@ant-design/icons";
 
 type Props = {
@@ -72,8 +72,10 @@ const BasicInformation = ({ data }: Props) => {
               beforeUpload={beforeUpload}
               maxCount={1}
               customRequest={({ file, onSuccess }) => {
-                // Simulate a successful upload
-                setTimeout(() => onSuccess("ok"), 0);
+                // Check if onSuccess is defined before calling it
+                if (onSuccess) {
+                  setTimeout(() => onSuccess("ok"), 0); // Simulate a successful upload
+                }
               }}
             >
               <Button icon={<UploadOutlined />}>Upload Profile</Button>

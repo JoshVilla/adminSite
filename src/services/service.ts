@@ -11,7 +11,7 @@ export const get = async (url: string, params = {}) => {
   });
 };
 
-export const post = async (url: string, params = {}) => {
+export const post = async (url: string, params: Record<string, any> = {}) => {
   let hasFileType = false;
   const formData = new FormData();
 

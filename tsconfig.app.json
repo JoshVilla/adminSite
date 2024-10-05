@@ -14,11 +14,17 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Path aliasing */
+    "baseUrl": ".", // Set this to your project root
+    "paths": {
+      "@/*": ["src/*"] // Adjust based on your project structure
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"] // Make sure this points to the folder containing your code
 }

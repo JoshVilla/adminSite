@@ -59,59 +59,74 @@ const BasicInformation = ({ data }: Props) => {
     return isImage || Upload.LIST_IGNORE;
   };
 
+  const layout = {
+    labelCol: { span: 2 },
+    wrapperCol: { span: 10 },
+  };
+
   return (
     <div>
       {contextHolder}
       <Typography.Title level={3}>Basic Information</Typography.Title>
-      <Form form={form}>
-        <Space direction="vertical">
-          {/* Profile */}
-          <Form.Item label="Logo" name="logo">
-            <Upload
-              onChange={uploadOnChange}
-              beforeUpload={beforeUpload}
-              maxCount={1}
-              customRequest={({ file, onSuccess }) => {
-                // Check if onSuccess is defined before calling it
-                if (onSuccess) {
-                  setTimeout(() => onSuccess("ok"), 0); // Simulate a successful upload
-                }
-              }}
-            >
-              <Button icon={<UploadOutlined />}>Upload Profile</Button>
-            </Upload>
-          </Form.Item>
+      <Form form={form} {...layout}>
+        {/* <Space direction="vertical"> */}
+        {/* Profile */}
+        <Form.Item label="Logo" name="logo">
+          <Upload
+            onChange={uploadOnChange}
+            beforeUpload={beforeUpload}
+            maxCount={1}
+            customRequest={({ file, onSuccess }) => {
+              // Check if onSuccess is defined before calling it
+              if (onSuccess) {
+                setTimeout(() => onSuccess("ok"), 0); // Simulate a successful upload
+              }
+            }}
+          >
+            <Button icon={<UploadOutlined />}>Upload Profile</Button>
+          </Upload>
+        </Form.Item>
 
-          {/* Title */}
-          <Form.Item label="Title" name="title">
-            <Input placeholder="Input Title of the Site" />
-          </Form.Item>
+        {/* Title */}
+        <Form.Item label="Title" name="title">
+          <Input placeholder="Input Title of the Site" />
+        </Form.Item>
 
-          {/* Address */}
-          <Form.Item label="Address" name="address">
-            <Input placeholder="Input Address of the School" />
-          </Form.Item>
+        {/* Address */}
+        <Form.Item label="Address" name="address">
+          <Input placeholder="Input Address of the School" />
+        </Form.Item>
 
-          {/* Social Media Section */}
-          <Typography.Title level={5}>
-            Social Media Accounts Links
-          </Typography.Title>
-          <Space>
-            <Form.Item label="Facebook" name={["accounts", "facebook"]}>
-              <Input placeholder="Facebook Link" />
-            </Form.Item>
-            <Form.Item label="Twitter" name={["accounts", "twitter"]}>
-              <Input placeholder="Twitter Link" />
-            </Form.Item>
-            <Form.Item label="Tiktok" name={["accounts", "tiktok"]}>
-              <Input placeholder="Tiktok Link" />
-            </Form.Item>
-          </Space>
+        {/* Contacts */}
+        <Form.Item label="Contact" name="contactNumber">
+          <Input placeholder="Input Contact Number" />
+        </Form.Item>
 
-          <Button loading={loading} type="primary" onClick={handleUpdate}>
-            Update
-          </Button>
-        </Space>
+        {/*Email*/}
+        <Form.Item label="Email" name="email">
+          <Input placeholder="Input Email" />
+        </Form.Item>
+
+        {/* Social Media Section */}
+        <Typography.Title level={5}>
+          Social Media Accounts Links
+        </Typography.Title>
+        {/* <Space direction="vertical"> */}
+        <Form.Item label="Facebook" name={["accounts", "facebook"]}>
+          <Input placeholder="Facebook Link" />
+        </Form.Item>
+        <Form.Item label="Twitter" name={["accounts", "twitter"]}>
+          <Input placeholder="Twitter Link" />
+        </Form.Item>
+        <Form.Item label="Tiktok" name={["accounts", "tiktok"]}>
+          <Input placeholder="Tiktok Link" />
+        </Form.Item>
+        {/* </Space> */}
+
+        <Button loading={loading} type="primary" onClick={handleUpdate}>
+          Update
+        </Button>
+        {/* </Space> */}
       </Form>
     </div>
   );

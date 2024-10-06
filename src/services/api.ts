@@ -27,3 +27,7 @@ export const siteInfo = (params: {}) => {
 export const siteInfoUpdate = (params: {}) => {
   return post("http://localhost:5000/siteInfoUpdate", params);
 };
+
+export const homepageInfo = (params: {}) => {
+  return get("http://localhost:5000/homepageInfo", params);
+};

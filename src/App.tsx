@@ -9,6 +9,7 @@ import {
 import RootLayout from "./layouts/RootLayout";
 import Admin from "./pages/adminManagement";
 import SiteManagement from "./pages/siteManagement";
+import Homepage from "./pages/pageManagement/homepage/homepage";
 
 function App() {
   const router = createBrowserRouter(
@@ -18,6 +19,7 @@ function App() {
         <Route path="admin" element={<RootLayout />}>
           <Route path="adminManagement" element={<Admin />} />
           <Route path="siteManagement" element={<SiteManagement />} />
+          <Route path="homepageManagement" element={<Homepage />} />
         </Route>
       </>
     )

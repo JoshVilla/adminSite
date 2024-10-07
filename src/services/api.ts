@@ -32,10 +32,14 @@ export const homepageInfo = (params: {}) => {
   return get("http://localhost:5000/homepageInfo", params);
 };
 
-export const updateHomepageInfo = (params: {}) => {
-  return post("http://localhost:5000/updateHomePageInfo", params);
+export const addHomepageInfo = (params: {}) => {
+  return post("http://localhost:5000/addHomePageInfo", params);
 };
 
 export const deleteHomepageInfo = (params: {}) => {
   return post("http://localhost:5000/deleteHomePageInfo", params);
+};
+
+export const updateHomepageInfo = (params: {}) => {
+  return post("http://localhost:5000/updateHomepageInfo", params);
 };

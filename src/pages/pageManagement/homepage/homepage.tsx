@@ -20,6 +20,7 @@ import { InfoCircleOutlined, UploadOutlined } from "@ant-design/icons";
 import {
   deleteHomepageInfo,
   homepageInfo,
+  addHomepageInfo,
   updateHomepageInfo,
 } from "@/services/api";
 import TextArea from "antd/es/input/TextArea";
@@ -29,6 +30,7 @@ import { STATUS } from "@/utils/constant";
 const { Title } = Typography;
 const Homepage = () => {
   const [form] = Form.useForm();
+  const [mode, setMode] = useState("");
   const [dataHighlights, setDataHighlights] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [displayValue, setDisplayValue] = useState(1);
@@ -68,7 +70,11 @@ const Homepage = () => {
       width: 150,
       render: (_value, records) => (
         <Flex align="center" justify="center">
-          <Button size="small" type="link" onClick={() => handleEdit(records)}>
+          <Button
+            size="small"
+            type="link"
+            onClick={() => handleEdit(records, "editMode")}
+          >
             Edit
           </Button>
           <Button size="small" danger onClick={() => handleDelete(records)}>
@@ -79,7 +85,8 @@ const Homepage = () => {
     },
   ];
 
-  const handleOpenModal = () => {
+  const handleOpenModal = (mode: string) => {
+    setMode(mode);
     form.resetFields();
     setOpenModal(true);
   };
@@ -123,20 +130,34 @@ const Homepage = () => {
     return isImage || Upload.LIST_IGNORE;
   };
 
-  const handleAddHighlight = () => {
+  const handleSubmit = () => {
     const params = form.getFieldsValue();
     setloadingAddBtn(true);
 
-    updateHomepageInfo({ ...params, section: "highlights" })
-      .then((res: any) => {
-        if (res.status === STATUS.SUCCESS) {
-          messageApi.success("Highlight Added");
-          setloadingAddBtn(false);
-          setOpenModal(false);
-          onLoad();
-        }
-      })
-      .catch((err) => console.log(err));
+    if (mode === "addMode") {
+      addHomepageInfo({ ...params, section: "highlights" })
+        .then((res: any) => {
+          if (res.status === STATUS.SUCCESS) {
+            messageApi.success("Highlight Added");
+            setloadingAddBtn(false);
+            setOpenModal(false);
+            onLoad();
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      updateHomepageInfo({ ...params, section: "highlights" })
+        .then((res: any) => {
+          if (res.status === STATUS.SUCCESS) {
+            messageApi.success("Highlight Updated");
+            setloadingAddBtn(false);
+            setOpenModal(false);
+            onLoad();
+          }
+        })
+        .catch((err) => console.log(err));
+      console.log(form.getFieldsValue());
+    }
   };
 
   const onLoad = () => {
@@ -163,15 +184,17 @@ const Homepage = () => {
     });
   };
 
-  const handleEdit = (records) => {
-    console.log(records);
+  const handleEdit = (records: any, mode: string) => {
+    setMode(mode);
     setOpenModal(true);
+
     form.setFieldsValue({
       display: Number(records.display),
       content: records.content,
       title: records.title,
       sorted: records.sorted,
       image: records.image,
+      highlightsId: records._id,
     });
   };
 
@@ -196,7 +219,7 @@ const Homepage = () => {
             <li>If only 1 image is uploaded, it will be shown as static</li>
           </ul>
         </div>
-        <Button type="primary" onClick={handleOpenModal}>
+        <Button type="primary" onClick={() => handleOpenModal("addMode")}>
           Add Highlights
         </Button>
         <Table
@@ -217,7 +240,7 @@ const Homepage = () => {
           <Button
             key="submit"
             type="primary"
-            onClick={handleAddHighlight}
+            onClick={handleSubmit}
             loading={loadingAddBtn}
           >
             Add
@@ -266,6 +289,9 @@ const Homepage = () => {
             >
               <Button icon={<UploadOutlined />}>Upload Profile</Button>
             </Upload>
+          </Form.Item>
+          <Form.Item name="highlightsId" style={{ display: "none" }}>
+            <Input type="hidden" />
           </Form.Item>
         </Form>
       </Modal>

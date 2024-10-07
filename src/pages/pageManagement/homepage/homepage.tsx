@@ -12,11 +12,18 @@ import {
   RadioChangeEvent,
   Upload,
   message,
+  Tag,
+  Flex,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { InfoCircleOutlined, UploadOutlined } from "@ant-design/icons";
-import { homepageInfo } from "@/services/api";
+import {
+  deleteHomepageInfo,
+  homepageInfo,
+  updateHomepageInfo,
+} from "@/services/api";
 import TextArea from "antd/es/input/TextArea";
+import style from "./style.module.scss";
 
 const { Title } = Typography;
 const Homepage = () => {
@@ -24,14 +31,50 @@ const Homepage = () => {
   const [dataHighlights, setDataHighlights] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [displayValue, setDisplayValue] = useState(1);
+  const [loadingAddBtn, setloadingAddBtn] = useState(false);
 
   const columns: TableColumnProps[] = [
-    { key: 1, title: "Image", align: "center", dataIndex: "image" },
+    {
+      key: 1,
+      title: "Image",
+      align: "center",
+      dataIndex: "image",
+      width: 100,
+      render: (value) => (
+        <img src={value} className={style.imgClass} alt="highlight_image" />
+      ),
+    },
     { key: 2, title: "Title", align: "center", dataIndex: "title" },
     { key: 3, title: "Content", align: "center", dataIndex: "content" },
     { key: 4, title: "Sort", align: "center", dataIndex: "sorted" },
-    { key: 5, title: "Display", align: "center", dataIndex: "display" },
-    { key: 6, title: "Action", align: "center" },
+    {
+      key: 5,
+      title: "Display",
+      align: "center",
+      dataIndex: "display",
+      render: (value) => (
+        <Tag color={value === "0" ? "default" : "success"}>
+          {value === "0" ? "Hidden" : "Displayed"}
+        </Tag>
+      ),
+      width: 150,
+    },
+    {
+      key: 6,
+      title: "Action",
+      align: "center",
+      width: 150,
+      render: (_value, records) => (
+        <Flex align="center" justify="center">
+          <Button size="small" type="link">
+            Edit
+          </Button>
+          <Button size="small" danger onClick={() => handleDelete(records)}>
+            Delete
+          </Button>
+        </Flex>
+      ),
+    },
   ];
 
   const handleOpenModal = () => {
@@ -41,6 +84,7 @@ const Homepage = () => {
   const handleCloseModal = () => {
     setDisplayValue(1);
     setOpenModal(false);
+    setloadingAddBtn(false);
   };
 
   const modalFormLayout = {
@@ -75,13 +119,46 @@ const Homepage = () => {
     return isImage || Upload.LIST_IGNORE;
   };
 
-  useEffect(() => {
+  const handleAddHighlight = () => {
+    const params = form.getFieldsValue();
+    setloadingAddBtn(true);
+
+    updateHomepageInfo({ ...params, section: "highlights" })
+      .then((res: any) => {
+        if (res.status === 200) {
+          setloadingAddBtn(false);
+          setOpenModal(false);
+          onLoad();
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const onLoad = () => {
     homepageInfo({}).then((res) => {
       const highlights = res.data[0].highlights;
       setDataHighlights(
         highlights.map((items: any) => ({ ...items, key: items.id }))
       );
     });
+  };
+
+  const handleDelete = (records: any) => {
+    const { _id, imagePublicId } = records;
+    const params = {
+      section: "highlights",
+      idSectionData: _id,
+      imagePublicId,
+    };
+    deleteHomepageInfo(params).then((res) => {
+      if (res.status === 200) {
+        onLoad();
+      }
+    });
+  };
+
+  useEffect(() => {
+    onLoad();
   }, []);
 
   return (
@@ -121,7 +198,8 @@ const Homepage = () => {
           <Button
             key="submit"
             type="primary"
-            onClick={() => console.log(form.getFieldsValue())}
+            onClick={handleAddHighlight}
+            loading={loadingAddBtn}
           >
             Add
           </Button>,
@@ -134,7 +212,7 @@ const Homepage = () => {
             display: 1,
             title: "",
             content: "",
-            sort: 1,
+            sorted: 1,
             image: "",
           }}
         >
@@ -144,7 +222,7 @@ const Homepage = () => {
           <Form.Item name="content" label="Content">
             <TextArea placeholder="Input Content" />
           </Form.Item>
-          <Form.Item name="sort" label="Sort">
+          <Form.Item name="sorted" label="Sort">
             <InputNumber type="number" />
           </Form.Item>
           <Form.Item name="display" label="Display?">

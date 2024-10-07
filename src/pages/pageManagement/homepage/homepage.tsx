@@ -24,6 +24,7 @@ import {
 } from "@/services/api";
 import TextArea from "antd/es/input/TextArea";
 import style from "./style.module.scss";
+import { STATUS } from "@/utils/constant";
 
 const { Title } = Typography;
 const Homepage = () => {
@@ -32,6 +33,7 @@ const Homepage = () => {
   const [openModal, setOpenModal] = useState(false);
   const [displayValue, setDisplayValue] = useState(1);
   const [loadingAddBtn, setloadingAddBtn] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const columns: TableColumnProps[] = [
     {
@@ -66,7 +68,7 @@ const Homepage = () => {
       width: 150,
       render: (_value, records) => (
         <Flex align="center" justify="center">
-          <Button size="small" type="link">
+          <Button size="small" type="link" onClick={() => handleEdit(records)}>
             Edit
           </Button>
           <Button size="small" danger onClick={() => handleDelete(records)}>
@@ -78,10 +80,12 @@ const Homepage = () => {
   ];
 
   const handleOpenModal = () => {
+    form.resetFields();
     setOpenModal(true);
   };
 
   const handleCloseModal = () => {
+    form.resetFields();
     setDisplayValue(1);
     setOpenModal(false);
     setloadingAddBtn(false);
@@ -125,7 +129,8 @@ const Homepage = () => {
 
     updateHomepageInfo({ ...params, section: "highlights" })
       .then((res: any) => {
-        if (res.status === 200) {
+        if (res.status === STATUS.SUCCESS) {
+          messageApi.success("Highlight Added");
           setloadingAddBtn(false);
           setOpenModal(false);
           onLoad();
@@ -152,8 +157,21 @@ const Homepage = () => {
     };
     deleteHomepageInfo(params).then((res) => {
       if (res.status === 200) {
+        messageApi.success("Delete Successfully");
         onLoad();
       }
+    });
+  };
+
+  const handleEdit = (records) => {
+    console.log(records);
+    setOpenModal(true);
+    form.setFieldsValue({
+      display: Number(records.display),
+      content: records.content,
+      title: records.title,
+      sorted: records.sorted,
+      image: records.image,
     });
   };
 
@@ -163,6 +181,7 @@ const Homepage = () => {
 
   return (
     <div>
+      {contextHolder}
       <TitlePage title="Homepage" />
       <div>
         <Title level={4}>Highlights Section</Title>

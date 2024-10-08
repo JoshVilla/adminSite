@@ -1,4 +1,9 @@
-import { GlobalOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  CopyOutlined,
+  GlobalOutlined,
+  HomeOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 export const menu = [
   {
     key: "adminManagement",
@@ -14,7 +19,7 @@ export const menu = [
   },
   {
     key: "pageManagement",
-    icon: <GlobalOutlined />,
+    icon: <CopyOutlined />,
     label: "Page Management",
     path: "pageManagement",
     children: [

@@ -14,6 +14,8 @@ import {
   message,
   Tag,
   Flex,
+  Popconfirm,
+  PopconfirmProps,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { InfoCircleOutlined, UploadOutlined } from "@ant-design/icons";
@@ -35,6 +37,7 @@ const Homepage = () => {
   const [openModal, setOpenModal] = useState(false);
   const [displayValue, setDisplayValue] = useState(1);
   const [loadingAddBtn, setloadingAddBtn] = useState(false);
+  const [totalHighlightsDisplayed, setTotalHighlightsDisplayed] = useState(0);
   const [messageApi, contextHolder] = message.useMessage();
 
   const columns: TableColumnProps[] = [
@@ -77,13 +80,26 @@ const Homepage = () => {
           >
             Edit
           </Button>
-          <Button size="small" danger onClick={() => handleDelete(records)}>
-            Delete
-          </Button>
+          <Popconfirm
+            placement="left"
+            title="Delete the highlight"
+            description="Are you sure to delete this highlight?"
+            onConfirm={() => confirmDelete(records)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button danger size="small">
+              Delete
+            </Button>
+          </Popconfirm>
         </Flex>
       ),
     },
   ];
+
+  const confirmDelete: PopconfirmProps["onConfirm"] = (records: {}) => {
+    handleDelete(records);
+  };
 
   const handleOpenModal = (mode: string) => {
     setMode(mode);
@@ -130,39 +146,51 @@ const Homepage = () => {
     return isImage || Upload.LIST_IGNORE;
   };
 
-  const handleSubmit = () => {
-    const params = form.getFieldsValue();
-    setloadingAddBtn(true);
+  const handleSubmit = async () => {
+    try {
+      const params = form.getFieldsValue();
 
-    if (mode === "addMode") {
-      addHomepageInfo({ ...params, section: "highlights" })
-        .then((res: any) => {
-          if (res.status === STATUS.SUCCESS) {
-            messageApi.success("Highlight Added");
-            setloadingAddBtn(false);
-            setOpenModal(false);
-            onLoad();
-          }
-        })
-        .catch((err) => console.log(err));
-    } else {
-      updateHomepageInfo({ ...params, section: "highlights" })
-        .then((res: any) => {
-          if (res.status === STATUS.SUCCESS) {
-            messageApi.success("Highlight Updated");
-            setloadingAddBtn(false);
-            setOpenModal(false);
-            onLoad();
-          }
-        })
-        .catch((err) => console.log(err));
-      console.log(form.getFieldsValue());
+      if (mode === "addMode") {
+        if (totalHighlightsDisplayed === 5 && params.display === 1) {
+          messageApi.warning("Maximum of 5 highlights displayed only");
+          return;
+        }
+        setloadingAddBtn(true);
+        const res = await addHomepageInfo({ ...params, section: "highlights" });
+        if (res.status === STATUS.SUCCESS) {
+          messageApi.success("Highlight Added");
+          setOpenModal(false);
+          onLoad();
+        }
+      } else {
+        if (totalHighlightsDisplayed >= 5 && params.display === 1) {
+          messageApi.warning("Maximum of 5 highlights displayed only");
+          return;
+        }
+        const res = await updateHomepageInfo({
+          ...params,
+          section: "highlights",
+        });
+        if (res.status === STATUS.SUCCESS) {
+          messageApi.success("Highlight Updated");
+          setOpenModal(false);
+          onLoad();
+        }
+      }
+    } catch (error) {
+      messageApi.error("An error occurred while processing the request.");
+      console.error(error);
+    } finally {
+      setloadingAddBtn(false);
     }
   };
-
   const onLoad = () => {
     homepageInfo({}).then((res) => {
       const highlights = res.data[0].highlights;
+      setTotalHighlightsDisplayed(
+        res.data[0].highlights.filter((o: any) => o.display === "1").length
+      );
+
       setDataHighlights(
         highlights.map((items: any) => ({ ...items, key: items.id }))
       );
@@ -215,7 +243,7 @@ const Homepage = () => {
             <li>
               Uploaded photos will be shown in slideshow in highlight section{" "}
             </li>
-            <li>Maximum of 5 can upload images</li>
+            <li>Maximum of 5 can can only be displayed</li>
             <li>If only 1 image is uploaded, it will be shown as static</li>
           </ul>
         </div>
@@ -231,7 +259,7 @@ const Homepage = () => {
       </div>
       <Modal
         open={openModal}
-        title="Add Highlights"
+        title={mode === "addMode" ? "Add Highlight" : "Edit Highlight"}
         onClose={handleCloseModal}
         onCancel={handleCloseModal}
         destroyOnClose
@@ -243,7 +271,7 @@ const Homepage = () => {
             onClick={handleSubmit}
             loading={loadingAddBtn}
           >
-            Add
+            Submit
           </Button>,
         ]}
       >

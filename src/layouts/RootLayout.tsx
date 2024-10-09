@@ -55,8 +55,6 @@ const App: React.FC = () => {
     navigate(`${e.key}`);
   };
 
-  console.log(avatar);
-
   return (
     <Layout>
       <Sider trigger={null} collapsible collapsed={collapsed}>

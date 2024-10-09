@@ -1,4 +1,5 @@
 import {
+  BookOutlined,
   CopyOutlined,
   GlobalOutlined,
   HomeOutlined,
@@ -28,6 +29,12 @@ export const menu = [
         label: "Homepage",
         path: "homepageManagement",
         icon: <HomeOutlined />,
+      },
+      {
+        key: "topStories",
+        label: "TopStories",
+        path: "topStories",
+        icon: <BookOutlined />,
       },
     ],
   },

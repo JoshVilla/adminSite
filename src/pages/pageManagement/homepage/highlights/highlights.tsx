@@ -30,12 +30,11 @@ import style from "./style.module.scss";
 import { STATUS } from "@/utils/constant";
 
 const { Title } = Typography;
-const Homepage = () => {
+const Highlights = () => {
   const [form] = Form.useForm();
   const [mode, setMode] = useState("");
   const [dataHighlights, setDataHighlights] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [displayValue, setDisplayValue] = useState(1);
   const [loadingAddBtn, setloadingAddBtn] = useState(false);
   const [totalHighlightsDisplayed, setTotalHighlightsDisplayed] = useState(0);
   const [messageApi, contextHolder] = message.useMessage();
@@ -109,7 +108,6 @@ const Homepage = () => {
 
   const handleCloseModal = () => {
     form.resetFields();
-    setDisplayValue(1);
     setOpenModal(false);
     setloadingAddBtn(false);
   };
@@ -117,10 +115,6 @@ const Homepage = () => {
   const modalFormLayout = {
     wrapperCol: { span: 14 },
     labelCol: { span: 2 },
-  };
-
-  const handleDisplayValue = (e: RadioChangeEvent) => {
-    setDisplayValue(e.target.value);
   };
 
   const uploadOnchange = (info: any) => {
@@ -233,7 +227,6 @@ const Homepage = () => {
   return (
     <div>
       {contextHolder}
-      <TitlePage title="Homepage" />
       <div>
         <Title level={4}>Highlights Section</Title>
         <div style={{ marginBottom: "10px" }}>
@@ -296,7 +289,7 @@ const Homepage = () => {
             <InputNumber type="number" />
           </Form.Item>
           <Form.Item name="display" label="Display?">
-            <Radio.Group onChange={handleDisplayValue}>
+            <Radio.Group>
               <Radio value={1}>Yes</Radio>
               <Radio value={0}>No</Radio>
             </Radio.Group>
@@ -327,4 +320,4 @@ const Homepage = () => {
   );
 };
 
-export default Homepage;
+export default Highlights;

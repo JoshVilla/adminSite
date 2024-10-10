@@ -9,7 +9,7 @@ import {
 import RootLayout from "./layouts/RootLayout";
 import Admin from "./pages/adminManagement";
 import SiteManagement from "./pages/siteManagement";
-import Homepage from "./pages/pageManagement/homepage";
+import Homepage from "./pages/pageManagement";
 import TopStories from "./pages/pageManagement/topStories";
 
 function App() {

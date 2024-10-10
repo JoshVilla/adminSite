@@ -30,7 +30,12 @@ import style from "./style.module.scss";
 import { STATUS } from "@/utils/constant";
 
 const { Title } = Typography;
-const Highlights = () => {
+
+interface Props {
+  data: any;
+  onLoad: Function;
+}
+const Highlights = ({ data, onLoad }: Props) => {
   const [form] = Form.useForm();
   const [mode, setMode] = useState("");
   const [dataHighlights, setDataHighlights] = useState([]);
@@ -41,7 +46,7 @@ const Highlights = () => {
 
   const columns: TableColumnProps[] = [
     {
-      key: 1,
+      key: "image",
       title: "Image",
       align: "center",
       dataIndex: "image",
@@ -50,11 +55,11 @@ const Highlights = () => {
         <img src={value} className={style.imgClass} alt="highlight_image" />
       ),
     },
-    { key: 2, title: "Title", align: "center", dataIndex: "title" },
-    { key: 3, title: "Content", align: "center", dataIndex: "content" },
-    { key: 4, title: "Sort", align: "center", dataIndex: "sorted" },
+    { key: "title", title: "Title", align: "center", dataIndex: "title" },
+    { key: "content", title: "Content", align: "center", dataIndex: "content" },
+    { key: "sorted", title: "Sort", align: "center", dataIndex: "sorted" },
     {
-      key: 5,
+      key: "display",
       title: "Display",
       align: "center",
       dataIndex: "display",
@@ -66,7 +71,7 @@ const Highlights = () => {
       width: 150,
     },
     {
-      key: 6,
+      key: "action",
       title: "Action",
       align: "center",
       width: 150,
@@ -178,18 +183,18 @@ const Highlights = () => {
       setloadingAddBtn(false);
     }
   };
-  const onLoad = () => {
-    homepageInfo({}).then((res) => {
-      const highlights = res.data[0].highlights;
-      setTotalHighlightsDisplayed(
-        res.data[0].highlights.filter((o: any) => o.display === "1").length
-      );
+  // const onLoad = () => {
+  //   homepageInfo({}).then((res) => {
+  //     const highlights = res.data[0].highlights;
+  //     setTotalHighlightsDisplayed(
+  //       res.data[0].highlights.filter((o: any) => o.display === "1").length
+  //     );
 
-      setDataHighlights(
-        highlights.map((items: any) => ({ ...items, key: items.id }))
-      );
-    });
-  };
+  //     setDataHighlights(
+  //       highlights.map((items: any) => ({ ...items, key: items.id }))
+  //     );
+  //   });
+  // };
 
   const handleDelete = (records: any) => {
     const { _id, imagePublicId } = records;
@@ -221,8 +226,16 @@ const Highlights = () => {
   };
 
   useEffect(() => {
-    onLoad();
-  }, []);
+    // setTotalHighlightsDisplayed(
+    //   data.highlights.filter((o: any) => o.display === "1").length
+    // );
+
+    // setDataHighlights(
+    //   data.highlights.map((items: any) => ({ ...items, key: items.id }))
+    // );
+
+    console.log(data);
+  }, [data]);
 
   return (
     <div>

@@ -28,7 +28,7 @@ const Homepage = (props: Props) => {
     {
       key: "3",
       label: "Hotlines",
-      children: <Hotlines />,
+      children: <Hotlines data={data} onLoad={() => onLoad()} />,
     },
   ];
 

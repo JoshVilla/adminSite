@@ -226,15 +226,13 @@ const Highlights = ({ data, onLoad }: Props) => {
   };
 
   useEffect(() => {
-    // setTotalHighlightsDisplayed(
-    //   data.highlights.filter((o: any) => o.display === "1").length
-    // );
+    setTotalHighlightsDisplayed(
+      data?.highlights?.filter((o: any) => o.display === "1").length
+    );
 
-    // setDataHighlights(
-    //   data.highlights.map((items: any) => ({ ...items, key: items.id }))
-    // );
-
-    console.log(data);
+    setDataHighlights(
+      data?.highlights?.map((items: any) => ({ ...items, key: items.id }))
+    );
   }, [data]);
 
   return (

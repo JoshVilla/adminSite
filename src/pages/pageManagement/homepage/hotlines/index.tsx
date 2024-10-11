@@ -20,6 +20,7 @@ import {
   updateHomepageInfo,
 } from "@/services/api";
 import { STATUS } from "@/utils/constant";
+import DeleteButton from "@/components/delButton/delButton";
 
 type Props = {
   data: any;
@@ -33,9 +34,12 @@ const Hotlines = ({ data, onLoad }: Props) => {
   const [dataHotlines, setDataHotlines] = useState([]);
   const [openModal, setopenModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+
   const handleCloseModal = () => {
     setopenModal(false);
     form.resetFields();
+    setLoading(false);
   };
   const uploadOnchange = (info: any) => {
     const { file } = info;
@@ -107,9 +111,13 @@ const Hotlines = ({ data, onLoad }: Props) => {
           >
             Edit
           </Button>
-          <Button danger size="small" onClick={() => handleDelete(record)}>
+          <DeleteButton
+            trigger={() => handleDelete(record)}
+            loading={loadingDelete}
+          />
+          {/* <Button danger size="small" onClick={() => handleDelete(record)}>
             Delete
-          </Button>
+          </Button> */}
         </Flex>
       ),
     },
@@ -126,16 +134,18 @@ const Hotlines = ({ data, onLoad }: Props) => {
         const res = await addHomepageInfo(params);
 
         if (res.status === STATUS.SUCCESS) {
-          setopenModal(false);
+          handleCloseModal();
           onLoad();
+          setLoading(false);
           messageApi.success("Hotline Added");
         }
       } else {
         const res = await updateHomepageInfo({ ...params });
 
         if (res.status === STATUS.SUCCESS) {
-          setopenModal(false);
+          handleCloseModal();
           onLoad();
+          setLoading(false);
           messageApi.success("Update Success");
         }
       }
@@ -157,6 +167,7 @@ const Hotlines = ({ data, onLoad }: Props) => {
 
   const handleDelete = async (records: any) => {
     const { _id, imagePublicId } = records;
+    setLoadingDelete(true);
     const res = await deleteHomepageInfo({
       idSectionData: _id,
       imagePublicId,
@@ -164,7 +175,7 @@ const Hotlines = ({ data, onLoad }: Props) => {
     });
 
     if (res.status === STATUS.SUCCESS) {
-      handleCloseModal();
+      setLoadingDelete(false);
       onLoad();
       messageApi.success("Hotline Deleted");
     }

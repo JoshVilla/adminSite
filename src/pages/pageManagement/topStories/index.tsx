@@ -59,6 +59,15 @@ const TopStories = () => {
         <Form.Item label="Title" name="title">
           <Input placeholder="Enter a title" />
         </Form.Item>
+        <Form.Item label="Thumbnail" name="thumbnail">
+          <Upload
+            listType="picture-card"
+            maxCount={1}
+            beforeUpload={() => false} // disable auto-upload
+          >
+            <div>+ Upload</div>
+          </Upload>
+        </Form.Item>
         <Form.List name="items">
           {(fields, { add, remove }) => (
             <div

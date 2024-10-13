@@ -43,3 +43,7 @@ export const deleteHomepageInfo = (params: {}) => {
 export const updateHomepageInfo = (params: {}) => {
   return post("http://localhost:5000/updateHomepageInfo", params);
 };
+
+export const addStory = (params: {}) => {
+  return post("http://localhost:5000/addStory", params);
+};

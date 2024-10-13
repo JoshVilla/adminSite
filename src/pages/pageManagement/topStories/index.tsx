@@ -1,11 +1,22 @@
 import TitlePage from "@/components/titlePage/titlePage";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { CloseOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, Space, Typography, Upload } from "antd";
+import {
+  Button,
+  Card,
+  Flex,
+  Form,
+  Input,
+  Space,
+  Typography,
+  Upload,
+} from "antd";
 import TextArea from "antd/es/input/TextArea";
+import { addStory } from "@/services/api";
 
 const TopStories = () => {
   const [form] = Form.useForm();
+  const [disableBtn, setDisableBtn] = useState(true);
 
   useEffect(() => {
     console.log("Form Values Updated:", form.getFieldsValue());
@@ -44,6 +55,15 @@ const TopStories = () => {
     }
 
     return null;
+  };
+
+  const handleAdd = () => {
+    const data = form.getFieldsValue();
+    console.log(data);
+
+    addStory(data).then((res) => {
+      console.log(res);
+    });
   };
 
   return (
@@ -103,16 +123,27 @@ const TopStories = () => {
                   + Add Image
                 </Button>
               </Space>
+              <Button type="primary" disabled={disableBtn} onClick={handleAdd}>
+                Add
+              </Button>
             </div>
           )}
         </Form.List>
 
         <Form.Item noStyle shouldUpdate>
-          {() => (
-            <Typography>
-              <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
-            </Typography>
-          )}
+          {() => {
+            const items = form.getFieldsValue()?.items;
+            if (items?.length > 0) {
+              setDisableBtn(false);
+            } else {
+              setDisableBtn(true);
+            }
+            return (
+              <Typography>
+                <pre>{JSON.stringify(form.getFieldsValue(), null, 1)}</pre>
+              </Typography>
+            );
+          }}
         </Form.Item>
       </Form>
     </div>

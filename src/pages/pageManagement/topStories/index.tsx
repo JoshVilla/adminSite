@@ -59,7 +59,6 @@ const TopStories = () => {
 
   const uploadOnchange = (info: any) => {
     const { file } = info;
-    console.log(file, "@@@@@@@@@@@@");
     const reader = new FileReader();
     reader.onload = () => {
       const currentValues = form.getFieldsValue();

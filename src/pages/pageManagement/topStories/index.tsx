@@ -47,13 +47,13 @@ const TopStories = () => {
             listType="picture-card"
             maxCount={1}
             beforeUpload={() => false} // disable auto-upload
+            onChange={(info) => uploadOnchangeItem(info, subField.name)} // pass field key
           >
             <div>+ Upload</div>
           </Upload>
         </Form.Item>
       );
     }
-
     return null;
   };
 
@@ -68,6 +68,27 @@ const TopStories = () => {
       });
     };
     reader.readAsDataURL(file);
+  };
+
+  const uploadOnchangeItem = (info: any, fieldKey: any) => {
+    const { fileList } = info;
+
+    // Extracting necessary fields (e.g., uid and originFileObj)
+    const formattedFileList = fileList.map((file: any) => ({
+      uid: file.uid,
+      name: file.name,
+      originFileObj: file.originFileObj, // Keep this for uploading
+    }));
+
+    // Update the corresponding image field in the form
+    form.setFieldsValue({
+      items: form.getFieldValue("items").map((item: any, index: number) => {
+        if (index === fieldKey) {
+          return { ...item, image: formattedFileList }; // Set the entire formatted list
+        }
+        return item;
+      }),
+    });
   };
 
   const handleAdd = () => {

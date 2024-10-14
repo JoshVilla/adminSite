@@ -57,6 +57,20 @@ const TopStories = () => {
     return null;
   };
 
+  const uploadOnchange = (info: any) => {
+    const { file } = info;
+    console.log(file, "@@@@@@@@@@@@");
+    const reader = new FileReader();
+    reader.onload = () => {
+      const currentValues = form.getFieldsValue();
+      form.setFieldsValue({
+        ...currentValues,
+        thumbnail: file,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAdd = () => {
     const data = form.getFieldsValue();
     console.log(data);
@@ -84,6 +98,7 @@ const TopStories = () => {
             listType="picture-card"
             maxCount={1}
             beforeUpload={() => false} // disable auto-upload
+            onChange={uploadOnchange}
           >
             <div>+ Upload</div>
           </Upload>

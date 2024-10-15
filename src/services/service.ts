@@ -23,10 +23,30 @@ export const post = async (url: string, params: Record<string, any> = {}) => {
       hasFileType = true;
       formData.append(key, value); // Add file to FormData
     }
-    // Handle objects (like 'accounts') by stringifying them to JSON
+    // Handle objects by checking for nested structures
     else if (typeof value === "object" && value !== null) {
-      hasFileType = true;
-      formData.append(key, JSON.stringify(value)); // Serialize objects to JSON
+      if (Array.isArray(value)) {
+        // If it's an array, append each item individually
+        value.forEach((item, index) => {
+          formData.append(
+            `${key}[${index}]`,
+            item instanceof File ? item : JSON.stringify(item)
+          );
+        });
+        hasFileType = true;
+      } else {
+        // If it's an object, check if it contains any file
+        const hasNestedFile = Object.values(value).some(
+          (v) => v instanceof File || v instanceof Blob
+        );
+        if (hasNestedFile) {
+          formData.append(key, JSON.stringify(value)); // Add JSON if necessary
+          hasFileType = true;
+        } else {
+          // This allows simpler nested objects to be sent as JSON in regular request
+          formData.append(key, JSON.stringify(value)); // Serialize objects to JSON
+        }
+      }
     }
     // Handle primitive types (string, number, boolean)
     else {
@@ -43,7 +63,8 @@ export const post = async (url: string, params: Record<string, any> = {}) => {
     url,
     data: data,
     headers: {
-      "Content-Type": hasFileType ? "multipart/form-data" : "application/json",
+      // No need to set Content-Type explicitly for FormData, Axios will handle it
+      "Content-Type": hasFileType ? undefined : "application/json",
     },
   });
 };

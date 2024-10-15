@@ -59,6 +59,8 @@ const TopStories = () => {
 
   const uploadOnchange = (info: any) => {
     const { file } = info;
+    console.log(file);
+
     const reader = new FileReader();
     reader.onload = () => {
       const currentValues = form.getFieldsValue();
@@ -82,12 +84,13 @@ const TopStories = () => {
 
     // Update the corresponding image field in the form
     form.setFieldsValue({
-      items: form.getFieldValue("items").map((item: any, index: number) => {
-        if (index === fieldKey) {
-          return { ...item, image: formattedFileList }; // Set the entire formatted list
-        }
-        return item;
-      }),
+      items:
+        form.getFieldValue("items").map((item: any, index: number) => {
+          if (index === fieldKey) {
+            return { ...item, image: formattedFileList }; // Set the entire formatted list
+          }
+          return item;
+        }) || [],
     });
   };
 
@@ -95,9 +98,14 @@ const TopStories = () => {
     const data = form.getFieldsValue();
     console.log(data);
 
-    addStory(data).then((res) => {
-      console.log(res);
-    });
+    // Send formData in a single request
+    addStory(data)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.error("Error:", err.response ? err.response.data : err);
+      });
   };
 
   return (
@@ -105,6 +113,10 @@ const TopStories = () => {
       <TitlePage title="Top Stories" />
       <Form
         form={form}
+        onFieldsChange={() => {
+          const items = form.getFieldsValue()?.items;
+          setDisableBtn(items?.length === 0);
+        }}
         name="dynamic_form"
         style={{ maxWidth: 600 }}
         autoComplete="off"
@@ -167,12 +179,6 @@ const TopStories = () => {
 
         <Form.Item noStyle shouldUpdate>
           {() => {
-            const items = form.getFieldsValue()?.items;
-            if (items?.length > 0) {
-              setDisableBtn(false);
-            } else {
-              setDisableBtn(true);
-            }
             return (
               <Typography>
                 <pre>{JSON.stringify(form.getFieldsValue(), null, 1)}</pre>

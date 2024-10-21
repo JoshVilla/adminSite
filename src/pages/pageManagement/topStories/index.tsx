@@ -7,6 +7,7 @@ import {
   Flex,
   Form,
   Input,
+  message,
   Space,
   Typography,
   Upload,
@@ -15,9 +16,10 @@ import TextArea from "antd/es/input/TextArea";
 import { addStory } from "@/services/api";
 
 const TopStories = () => {
+  const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const [disableBtn, setDisableBtn] = useState(true);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     console.log("Form Values Updated:", form.getFieldsValue());
   }, [form]);
@@ -59,7 +61,6 @@ const TopStories = () => {
 
   const uploadOnchange = (info: any) => {
     const { file } = info;
-    console.log(file);
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -96,97 +97,109 @@ const TopStories = () => {
 
   const handleAdd = () => {
     const data = form.getFieldsValue();
-    console.log(data);
-
+    setLoading(true);
     // Send formData in a single request
     addStory(data)
       .then((res) => {
-        console.log(res);
+        messageApi.success(res.data.message);
       })
       .catch((err) => {
         console.error("Error:", err.response ? err.response.data : err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
   return (
     <div>
+      {contextHolder}
       <TitlePage title="Top Stories" />
-      <Form
-        form={form}
-        onFieldsChange={() => {
-          const items = form.getFieldsValue()?.items;
-          setDisableBtn(items?.length === 0);
-        }}
-        name="dynamic_form"
-        style={{ maxWidth: 600 }}
-        autoComplete="off"
-        initialValues={{ items: [] }}
-      >
-        <Form.Item label="Title" name="title">
-          <Input placeholder="Enter a title" />
-        </Form.Item>
-        <Form.Item label="Thumbnail" name="thumbnail">
-          <Upload
-            listType="picture-card"
-            maxCount={1}
-            beforeUpload={() => false} // disable auto-upload
-            onChange={uploadOnchange}
-          >
-            <div>+ Upload</div>
-          </Upload>
-        </Form.Item>
-        <Form.List name="items">
-          {(fields, { add, remove }) => (
-            <div
-              style={{ display: "flex", flexDirection: "column", rowGap: 16 }}
-            >
-              {fields.map((field) => (
-                <Card
-                  size="small"
-                  title={`Item ${field.key + 1}`}
-                  key={field.key}
-                  extra={<CloseOutlined onClick={() => remove(field.name)} />}
-                >
-                  {renderFormItem(field)}
-                </Card>
-              ))}
-
-              <Space>
-                <Button
-                  type="dashed"
-                  onClick={() => {
-                    add({ type: "paragraph" }); // Add paragraph
-                  }}
-                >
-                  + Add Paragraph
-                </Button>
-
-                <Button
-                  type="dashed"
-                  onClick={() => {
-                    add({ type: "image" }); // Add image
-                  }}
-                >
-                  + Add Image
-                </Button>
-              </Space>
-              <Button type="primary" disabled={disableBtn} onClick={handleAdd}>
-                Add
-              </Button>
-            </div>
-          )}
-        </Form.List>
-
-        <Form.Item noStyle shouldUpdate>
-          {() => {
-            return (
-              <Typography>
-                <pre>{JSON.stringify(form.getFieldsValue(), null, 1)}</pre>
-              </Typography>
-            );
+      <Flex>
+        <div>asd</div>
+        <Form
+          form={form}
+          onFieldsChange={() => {
+            const items = form.getFieldsValue()?.items;
+            setDisableBtn(items?.length === 0);
           }}
-        </Form.Item>
-      </Form>
+          name="dynamic_form"
+          style={{ maxWidth: 600 }}
+          autoComplete="off"
+          initialValues={{ items: [] }}
+        >
+          <Form.Item label="Title" name="title">
+            <Input placeholder="Enter a title" />
+          </Form.Item>
+          <Form.Item label="Thumbnail" name="thumbnail">
+            <Upload
+              listType="picture-card"
+              maxCount={1}
+              beforeUpload={() => false} // disable auto-upload
+              onChange={uploadOnchange}
+            >
+              <div>+ Upload</div>
+            </Upload>
+          </Form.Item>
+          <Form.List name="items">
+            {(fields, { add, remove }) => (
+              <div
+                style={{ display: "flex", flexDirection: "column", rowGap: 16 }}
+              >
+                {fields.map((field) => (
+                  <Card
+                    size="small"
+                    title={`Item ${field.key + 1}`}
+                    key={field.key}
+                    extra={<CloseOutlined onClick={() => remove(field.name)} />}
+                  >
+                    {renderFormItem(field)}
+                  </Card>
+                ))}
+
+                <Space>
+                  <Button
+                    type="dashed"
+                    onClick={() => {
+                      add({ type: "paragraph" }); // Add paragraph
+                    }}
+                  >
+                    + Add Paragraph
+                  </Button>
+
+                  <Button
+                    type="dashed"
+                    onClick={() => {
+                      add({ type: "image" }); // Add image
+                    }}
+                    disabled
+                  >
+                    + Add Image
+                  </Button>
+                </Space>
+                <Button
+                  type="primary"
+                  disabled={disableBtn}
+                  loading={loading}
+                  onClick={handleAdd}
+                >
+                  Add
+                </Button>
+              </div>
+            )}
+          </Form.List>
+
+          {/* <Form.Item noStyle shouldUpdate>
+            {() => {
+              return (
+                <Typography>
+                  <pre>{JSON.stringify(form.getFieldsValue(), null, 1)}</pre>
+                </Typography>
+              );
+            }}
+          </Form.Item> */}
+        </Form>
+      </Flex>
     </div>
   );
 };

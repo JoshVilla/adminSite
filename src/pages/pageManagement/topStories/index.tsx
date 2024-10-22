@@ -78,9 +78,16 @@ const TopStories = () => {
           .finally(() => setLoading(false));
       } else {
         const id = selectedStory._id;
+        const thumbnailPublicId = selectedStory.thumbnailPublicId;
+
         setLoading(true);
-        updateStory({ id, ...data })
+        updateStory({
+          id,
+          ...data,
+          currentThumbnailPublicId: thumbnailPublicId,
+        })
           .then((res) => {
+            setActiveList(null);
             messageApi.success(res.data.message);
             resetForm(); // Reset form on success
             refreshStories(); // Reload stories

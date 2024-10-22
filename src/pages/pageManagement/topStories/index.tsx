@@ -2,36 +2,86 @@ import TitlePage from "@/components/titlePage/titlePage";
 import React, { useEffect, useState } from "react";
 import { CloseOutlined } from "@ant-design/icons";
 import style from "./style.module.scss";
-import {
-  Button,
-  Card,
-  Flex,
-  Form,
-  Input,
-  message,
-  Modal,
-  Space,
-  Typography,
-  Upload,
-} from "antd";
+import { Button, Card, Form, Input, message, Space, Upload } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { addStory, getStory } from "@/services/api";
 
 const TopStories = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
-  const [disableBtn, setDisableBtn] = useState(true);
   const [loading, setLoading] = useState(false);
   const [storyList, setStoryList] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
+  const [selectedStory, setSelectedStory] = useState(null);
 
   useEffect(() => {
-    getStory({}).then((res) => {
-      setStoryList(res.data);
-    });
+    getStory({}).then((res) => setStoryList(res.data));
   }, []);
 
-  const renderFormItem = (subField: any) => {
+  // Reset form when selectedStory changes (ensures proper form state)
+  useEffect(() => {
+    if (selectedStory) {
+      form.setFieldsValue({
+        title: selectedStory?.title || "",
+        thumbnail: selectedStory?.thumbnail
+          ? [{ uid: "-1", name: "thumbnail.jpg", url: selectedStory.thumbnail }]
+          : [],
+        items: selectedStory?.content?.map((item) => JSON.parse(item)) || [],
+      });
+    } else {
+      form.resetFields(); // Reset form for a new story
+    }
+  }, [selectedStory, form]);
+
+  const uploadOnChange = (info, fieldKey = null) => {
+    const { fileList } = info;
+
+    const formattedFileList = fileList.map((file) => ({
+      uid: file.uid,
+      name: file.name,
+      originFileObj: file.originFileObj,
+    }));
+
+    if (fieldKey === null) {
+      form.setFieldsValue({ thumbnail: formattedFileList[0] });
+    } else {
+      form.setFieldsValue({
+        items: form
+          .getFieldValue("items")
+          .map((item, index) =>
+            index === fieldKey ? { ...item, image: formattedFileList } : item
+          ),
+      });
+    }
+  };
+
+  const handleAddOrUpdateStory = () => {
+    form.validateFields().then((data) => {
+      setLoading(true);
+      addStory(data)
+        .then((res) => {
+          messageApi.success(res.data.message);
+          resetForm(); // Reset form on success
+          refreshStories(); // Reload stories
+        })
+        .catch((err) => console.error("Error:", err.response?.data || err))
+        .finally(() => setLoading(false));
+    });
+  };
+
+  const resetForm = () => {
+    setSelectedStory(null);
+    form.resetFields(); // Ensures form is reset after submission
+  };
+
+  const refreshStories = () => {
+    getStory({}).then((res) => setStoryList(res.data));
+  };
+
+  const handleEditStory = (story) => {
+    setSelectedStory(story);
+  };
+
+  const renderFormItem = (subField) => {
     const type = form.getFieldValue(["items", subField.name, "type"]);
 
     if (type === "paragraph") {
@@ -55,188 +105,119 @@ const TopStories = () => {
           <Upload
             listType="picture-card"
             maxCount={1}
-            beforeUpload={() => false} // disable auto-upload
-            onChange={(info) => uploadOnchangeItem(info, subField.name)} // pass field key
+            beforeUpload={() => false}
+            onChange={(info) => uploadOnChange(info, subField.name)}
           >
             <div>+ Upload</div>
           </Upload>
         </Form.Item>
       );
     }
+
     return null;
-  };
-
-  const uploadOnchange = (info: any) => {
-    const { file } = info;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const currentValues = form.getFieldsValue();
-      form.setFieldsValue({
-        ...currentValues,
-        thumbnail: file,
-      });
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const uploadOnchangeItem = (info: any, fieldKey: any) => {
-    const { fileList } = info;
-
-    // Extracting necessary fields (e.g., uid and originFileObj)
-    const formattedFileList = fileList.map((file: any) => ({
-      uid: file.uid,
-      name: file.name,
-      originFileObj: file.originFileObj, // Keep this for uploading
-    }));
-
-    // Update the corresponding image field in the form
-    form.setFieldsValue({
-      items:
-        form.getFieldValue("items").map((item: any, index: number) => {
-          if (index === fieldKey) {
-            return { ...item, image: formattedFileList }; // Set the entire formatted list
-          }
-          return item;
-        }) || [],
-    });
-  };
-
-  const handleAdd = () => {
-    const data = form.getFieldsValue();
-    setLoading(true);
-    // Send formData in a single request
-    addStory(data)
-      .then((res) => {
-        messageApi.success(res.data.message);
-        handleCloseModal();
-      })
-      .catch((err) => {
-        console.error("Error:", err.response ? err.response.data : err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    form.resetFields();
   };
 
   return (
     <div>
       {contextHolder}
       <TitlePage title="Top Stories" />
-      <Space direction="horizontal" align="start" size="large">
+      <Space align="start" size="large">
         <div style={{ width: 400 }}>
           <Space direction="vertical" size="middle">
             <Button
               style={{ width: 300 }}
               type="primary"
-              onClick={() => setOpenModal(true)}
+              onClick={resetForm} // Open for a new story (reset form)
             >
               + Add Story
             </Button>
-            {storyList.map((list: any, idx: number) => (
-              <li key={idx} className={style.storyList}>
+            {storyList.map((list, idx) => (
+              <li
+                key={idx}
+                className={style.storyList}
+                onClick={() => handleEditStory(list)}
+              >
                 {list.title}
               </li>
             ))}
           </Space>
         </div>
-      </Space>
-      <Modal
-        destroyOnClose
-        width={800}
-        open={openModal}
-        onClose={handleCloseModal}
-        onCancel={handleCloseModal}
-        footer={false}
-      >
-        <Form
-          form={form}
-          onFieldsChange={() => {
-            const items = form.getFieldsValue()?.items;
-            setDisableBtn(items?.length === 0);
-          }}
-          name="dynamic_form"
-          style={{ width: 600 }}
-          autoComplete="off"
-          initialValues={{ items: [] }}
-        >
-          <Form.Item label="Title" name="title">
-            <Input placeholder="Enter a title" />
-          </Form.Item>
-          <Form.Item label="Thumbnail" name="thumbnail">
-            <Upload
-              listType="picture-card"
-              maxCount={1}
-              beforeUpload={() => false} // disable auto-upload
-              onChange={uploadOnchange}
-            >
-              <div>+ Upload</div>
-            </Upload>
-          </Form.Item>
-          <Form.List name="items">
-            {(fields, { add, remove }) => (
-              <div
-                style={{ display: "flex", flexDirection: "column", rowGap: 16 }}
-              >
-                {fields.map((field) => (
-                  <Card
-                    size="small"
-                    title={`Item ${field.key + 1}`}
-                    key={field.key}
-                    extra={<CloseOutlined onClick={() => remove(field.name)} />}
-                  >
-                    {renderFormItem(field)}
-                  </Card>
-                ))}
 
-                <Space>
-                  <Button
-                    type="dashed"
-                    onClick={() => {
-                      add({ type: "paragraph" }); // Add paragraph
-                    }}
-                  >
-                    + Add Paragraph
-                  </Button>
-
-                  <Button
-                    type="dashed"
-                    onClick={() => {
-                      add({ type: "image" }); // Add image
-                    }}
-                    disabled
-                  >
-                    + Add Image
-                  </Button>
-                </Space>
-                <Button
-                  type="primary"
-                  disabled={disableBtn}
-                  loading={loading}
-                  onClick={handleAdd}
-                >
-                  Add
-                </Button>
-              </div>
-            )}
-          </Form.List>
-
-          {/* <Form.Item noStyle shouldUpdate>
-            {() => {
-              return (
-                <Typography>
-                  <pre>{JSON.stringify(form.getFieldsValue(), null, 1)}</pre>
-                </Typography>
-              );
+        <div>
+          <TitlePage title="Edit Story" />
+          <Form
+            form={form}
+            name="dynamic_form"
+            style={{ width: 600 }}
+            autoComplete="off"
+            initialValues={{
+              title: "",
+              thumbnail: [],
+              items: [],
             }}
-          </Form.Item> */}
-        </Form>
-      </Modal>
+          >
+            <Form.Item label="Title" name="title">
+              <Input placeholder="Enter a title" />
+            </Form.Item>
+
+            <Form.Item label="Thumbnail" name="thumbnail">
+              <Upload
+                listType="picture-card"
+                maxCount={1}
+                beforeUpload={() => false}
+                onChange={uploadOnChange}
+              >
+                <div>+ Upload</div>
+              </Upload>
+            </Form.Item>
+
+            <Form.List name="items">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map((field) => (
+                    <Card
+                      size="small"
+                      title={`Item ${field.key + 1}`}
+                      key={field.key}
+                      extra={
+                        <CloseOutlined onClick={() => remove(field.name)} />
+                      }
+                    >
+                      {renderFormItem(field)}
+                    </Card>
+                  ))}
+
+                  <Space size="middle">
+                    <Button
+                      type="dashed"
+                      onClick={() => add({ type: "paragraph" })}
+                    >
+                      + Add Paragraph
+                    </Button>
+
+                    {/* <Button
+                      disabled
+                      type="dashed"
+                      onClick={() => add({ type: "image" })}
+                    >
+                      + Add Image
+                    </Button> */}
+                  </Space>
+
+                  <Button
+                    type="primary"
+                    disabled={!form.getFieldValue("items").length}
+                    loading={loading}
+                    onClick={handleAddOrUpdateStory}
+                  >
+                    {selectedStory ? "Update Story" : "Add Story"}
+                  </Button>
+                </>
+              )}
+            </Form.List>
+          </Form>
+        </div>
+      </Space>
     </div>
   );
 };

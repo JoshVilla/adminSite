@@ -9,6 +9,12 @@
   transition: .2s all;
 
   &:hover {
-    background-color: #549bff;
+    background-color: #2e7eef;
+    color: #fff;
   }
+}
+
+.active {
+  background-color: #2e7eef;
+  color: #fff;
 }

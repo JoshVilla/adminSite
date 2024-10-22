@@ -16,3 +16,7 @@ export const delayTimer = (timer: number, Func: Function) => {
     }
   }
 };
+
+export const combineClassNames = (arrClass: (string | null)[]) => {
+  return arrClass?.join(" ");
+};

@@ -7,6 +7,7 @@ import TextArea from "antd/es/input/TextArea";
 import { addStory, deleteStory, getStory, updateStory } from "@/services/api";
 import DeleteButton from "@/components/delButton/delButton";
 import { STATUS } from "@/utils/constant";
+import { combineClassNames } from "@/utils/helpers";
 
 const TopStories = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -15,7 +16,7 @@ const TopStories = () => {
   const [storyList, setStoryList] = useState([]);
   const [selectedStory, setSelectedStory] = useState<any>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [mode, setMode] = useState("addMode");
+  const [activeList, setActiveList] = useState<Number | null>(null);
 
   useEffect(() => {
     onLoad();
@@ -101,7 +102,6 @@ const TopStories = () => {
 
   const handleEditStory = (story: any) => {
     setSelectedStory(story);
-    setMode("editMode");
   };
 
   const renderFormItem = (subField: any) => {
@@ -182,7 +182,7 @@ const TopStories = () => {
               type="primary"
               onClick={() => {
                 resetForm();
-                setMode("addMode");
+                setActiveList(null);
               }} // Open for a new story (reset form)
             >
               + Add Story
@@ -190,8 +190,14 @@ const TopStories = () => {
             {storyList.map((list: any, idx) => (
               <li
                 key={idx}
-                className={style.storyList}
-                onClick={() => handleEditStory(list)}
+                className={combineClassNames([
+                  style.storyList,
+                  idx === activeList ? style.active : null,
+                ])}
+                onClick={() => {
+                  handleEditStory(list);
+                  setActiveList(idx);
+                }}
               >
                 {list.title}
               </li>
@@ -202,7 +208,9 @@ const TopStories = () => {
         <div>
           <Flex align="center" justify="space-between">
             <TitlePage title="Edit Story" />
-            <DeleteButton loading={deleteLoading} trigger={handleDelete} />
+            {selectedStory && (
+              <DeleteButton loading={deleteLoading} trigger={handleDelete} />
+            )}
           </Flex>
           <Form
             form={form}

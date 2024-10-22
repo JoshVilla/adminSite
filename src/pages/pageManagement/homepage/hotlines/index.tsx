@@ -115,9 +115,6 @@ const Hotlines = ({ data, onLoad }: Props) => {
             trigger={() => handleDelete(record)}
             loading={loadingDelete}
           />
-          {/* <Button danger size="small" onClick={() => handleDelete(record)}>
-            Delete
-          </Button> */}
         </Flex>
       ),
     },

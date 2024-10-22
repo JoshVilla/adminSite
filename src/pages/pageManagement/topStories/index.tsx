@@ -2,19 +2,22 @@ import TitlePage from "@/components/titlePage/titlePage";
 import React, { useEffect, useState } from "react";
 import { CloseOutlined } from "@ant-design/icons";
 import style from "./style.module.scss";
-import { Button, Card, Form, Input, message, Space, Upload } from "antd";
+import { Button, Card, Flex, Form, Input, message, Space, Upload } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { addStory, getStory } from "@/services/api";
+import { addStory, deleteStory, getStory } from "@/services/api";
+import DeleteButton from "@/components/delButton/delButton";
+import { STATUS } from "@/utils/constant";
 
 const TopStories = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [storyList, setStoryList] = useState([]);
-  const [selectedStory, setSelectedStory] = useState(null);
+  const [selectedStory, setSelectedStory] = useState<any>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
-    getStory({}).then((res) => setStoryList(res.data));
+    onLoad();
   }, []);
 
   // Reset form when selectedStory changes (ensures proper form state)
@@ -25,17 +28,18 @@ const TopStories = () => {
         thumbnail: selectedStory?.thumbnail
           ? [{ uid: "-1", name: "thumbnail.jpg", url: selectedStory.thumbnail }]
           : [],
-        items: selectedStory?.content?.map((item) => JSON.parse(item)) || [],
+        items:
+          selectedStory?.content?.map((item: any) => JSON.parse(item)) || [],
       });
     } else {
       form.resetFields(); // Reset form for a new story
     }
   }, [selectedStory, form]);
 
-  const uploadOnChange = (info, fieldKey = null) => {
+  const uploadOnChange = (info: any, fieldKey = null) => {
     const { fileList } = info;
 
-    const formattedFileList = fileList.map((file) => ({
+    const formattedFileList = fileList.map((file: any) => ({
       uid: file.uid,
       name: file.name,
       originFileObj: file.originFileObj,
@@ -47,7 +51,7 @@ const TopStories = () => {
       form.setFieldsValue({
         items: form
           .getFieldValue("items")
-          .map((item, index) =>
+          .map((item: any, index: number) =>
             index === fieldKey ? { ...item, image: formattedFileList } : item
           ),
       });
@@ -77,11 +81,11 @@ const TopStories = () => {
     getStory({}).then((res) => setStoryList(res.data));
   };
 
-  const handleEditStory = (story) => {
+  const handleEditStory = (story: any) => {
     setSelectedStory(story);
   };
 
-  const renderFormItem = (subField) => {
+  const renderFormItem = (subField: any) => {
     const type = form.getFieldValue(["items", subField.name, "type"]);
 
     if (type === "paragraph") {
@@ -117,6 +121,35 @@ const TopStories = () => {
     return null;
   };
 
+  const handleDelete = async () => {
+    setDeleteLoading(true);
+    try {
+      const { _id, thumbnailPublicId } = selectedStory;
+      const id = _id;
+      const response = await deleteStory({ id, thumbnailPublicId });
+      if (response.status === 200) {
+        setDeleteLoading(false);
+        onLoad();
+        resetForm();
+      }
+    } catch (err) {
+      setDeleteLoading(false);
+      console.log(err);
+    }
+  };
+
+  const onLoad = async () => {
+    await getStory({})
+      .then((res) => {
+        if (res.status === STATUS.SUCCESS) {
+          setStoryList(res.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <div>
       {contextHolder}
@@ -131,7 +164,7 @@ const TopStories = () => {
             >
               + Add Story
             </Button>
-            {storyList.map((list, idx) => (
+            {storyList.map((list: any, idx) => (
               <li
                 key={idx}
                 className={style.storyList}
@@ -144,7 +177,10 @@ const TopStories = () => {
         </div>
 
         <div>
-          <TitlePage title="Edit Story" />
+          <Flex align="center" justify="space-between">
+            <TitlePage title="Edit Story" />
+            <DeleteButton loading={deleteLoading} trigger={handleDelete} />
+          </Flex>
           <Form
             form={form}
             name="dynamic_form"

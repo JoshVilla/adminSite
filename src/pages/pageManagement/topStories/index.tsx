@@ -42,18 +42,22 @@ const TopStories = () => {
     const formattedFileList = fileList.map((file: any) => ({
       uid: file.uid,
       name: file.name,
-      originFileObj: file.originFileObj,
+      originFileObj: file.originFileObj, // Include the actual file object here
     }));
 
+    // If this is for the main thumbnail
     if (fieldKey === null) {
-      form.setFieldsValue({ thumbnail: formattedFileList[0] });
-    } else {
       form.setFieldsValue({
-        items: form
-          .getFieldValue("items")
-          .map((item: any, index: number) =>
-            index === fieldKey ? { ...item, image: formattedFileList } : item
-          ),
+        thumbnail: formattedFileList[0]?.originFileObj, // Set the actual file object for thumbnail
+      });
+    } else {
+      // If this is for an image inside a dynamic item
+      form.setFieldsValue({
+        items: form.getFieldValue("items").map((item: any, index: number) =>
+          index === fieldKey
+            ? { ...item, image: formattedFileList[0]?.originFileObj } // Set the actual file object in the dynamic item
+            : item
+        ),
       });
     }
   };
@@ -131,6 +135,7 @@ const TopStories = () => {
         setDeleteLoading(false);
         onLoad();
         resetForm();
+        messageApi.success(response.data.message);
       }
     } catch (err) {
       setDeleteLoading(false);

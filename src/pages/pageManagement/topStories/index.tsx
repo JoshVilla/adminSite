@@ -8,13 +8,15 @@ import { addStory, deleteStory, getStory, updateStory } from "@/services/api";
 import DeleteButton from "@/components/delButton/delButton";
 import { STATUS } from "@/utils/constant";
 import { combineClassNames } from "@/utils/helpers";
+import { IStoryList } from "./interface";
 
 const TopStories = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [storyList, setStoryList] = useState([]);
-  const [selectedStory, setSelectedStory] = useState<any>(null);
+  const [searchForm] = Form.useForm();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [storyList, setStoryList] = useState<IStoryList[]>([]);
+  const [selectedStory, setSelectedStory] = useState<IStoryList | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [activeList, setActiveList] = useState<Number | null>(null);
 
@@ -150,8 +152,8 @@ const TopStories = () => {
   const handleDelete = async () => {
     setDeleteLoading(true);
     try {
-      const { _id, thumbnailPublicId } = selectedStory;
-      const id = _id;
+      const id = selectedStory?._id;
+      const thumbnailPublicId = selectedStory?.thumbnailPublicId;
       const response = await deleteStory({ id, thumbnailPublicId });
       if (response.status === 200) {
         setDeleteLoading(false);
@@ -165,8 +167,8 @@ const TopStories = () => {
     }
   };
 
-  const onLoad = async () => {
-    await getStory({})
+  const onLoad = async (params = {}) => {
+    await getStory(params)
       .then((res) => {
         if (res.status === STATUS.SUCCESS) {
           setStoryList(res.data);
@@ -175,6 +177,16 @@ const TopStories = () => {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const onReset = () => {
+    searchForm.resetFields();
+    onLoad({});
+  };
+
+  const onSearch = () => {
+    const searchParams = searchForm.getFieldsValue();
+    onLoad(searchParams);
   };
 
   return (
@@ -194,6 +206,24 @@ const TopStories = () => {
             >
               + Add Story
             </Button>
+            <Form form={searchForm}>
+              <Form.Item name="title">
+                <Input placeholder="Search Title" />
+              </Form.Item>
+              <Flex gap={5}>
+                <Button type="primary" size="small" onClick={onSearch}>
+                  Search
+                </Button>
+                <Button
+                  color="primary"
+                  // type="dashed"
+                  size="small"
+                  onClick={onReset}
+                >
+                  Reset
+                </Button>
+              </Flex>
+            </Form>
             {storyList.map((list: any, idx) => (
               <li
                 key={idx}
@@ -206,7 +236,8 @@ const TopStories = () => {
                   setActiveList(idx);
                 }}
               >
-                {list.title}
+                <div className={style.title}>{list.title}</div>
+                <div className={style.date}>{list.createdAt}</div>
               </li>
             ))}
           </Space>
@@ -214,7 +245,7 @@ const TopStories = () => {
 
         <div>
           <Flex align="center" justify="space-between">
-            <TitlePage title="Edit Story" />
+            <TitlePage title={selectedStory ? "Edit Story" : "Add Story"} />
             {selectedStory && (
               <DeleteButton loading={deleteLoading} trigger={handleDelete} />
             )}

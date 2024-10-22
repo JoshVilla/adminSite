@@ -49,7 +49,7 @@ export const addStory = (params: {}) => {
 };
 
 export const getStory = (params: {}) => {
-  return get("http://localhost:5000/topStoriesInfo", params);
+  return post("http://localhost:5000/topStoriesInfo", params);
 };
 
 export const deleteStory = (params: {}) => {

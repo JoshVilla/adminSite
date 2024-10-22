@@ -2,13 +2,26 @@ import TitlePage from "@/components/titlePage/titlePage";
 import React, { useEffect, useState } from "react";
 import { CloseOutlined } from "@ant-design/icons";
 import style from "./style.module.scss";
-import { Button, Card, Flex, Form, Input, message, Space, Upload } from "antd";
+import {
+  Button,
+  Card,
+  Flex,
+  Form,
+  Input,
+  message,
+  Space,
+  Upload,
+  DatePicker,
+  DatePickerProps,
+} from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { addStory, deleteStory, getStory, updateStory } from "@/services/api";
 import DeleteButton from "@/components/delButton/delButton";
 import { STATUS } from "@/utils/constant";
 import { combineClassNames } from "@/utils/helpers";
 import { IStoryList } from "./interface";
+
+const { RangePicker } = DatePicker;
 
 const TopStories = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -186,7 +199,25 @@ const TopStories = () => {
 
   const onSearch = () => {
     const searchParams = searchForm.getFieldsValue();
-    onLoad(searchParams);
+    const { title, date } = searchParams;
+
+    if (date && date.length === 2) {
+      const [startDate, endDate] = date;
+      console.log("Start Date:", startDate);
+      console.log("End Date:", endDate);
+      onLoad({ title, date: [startDate, endDate] });
+    } else {
+      onLoad({ title });
+    }
+
+    console.log(searchForm.getFieldsValue());
+  };
+
+  const onChangeDate: DatePickerProps<any>["onChange"] = (
+    dates,
+    dateStrings
+  ) => {
+    searchForm.setFieldValue("date", dateStrings); // Just store the raw date strings in the form
   };
 
   return (
@@ -206,20 +237,18 @@ const TopStories = () => {
             >
               + Add Story
             </Button>
-            <Form form={searchForm}>
+            <Form form={searchForm} initialValues={{ title: "", date: [] }}>
               <Form.Item name="title">
                 <Input placeholder="Search Title" />
+              </Form.Item>
+              <Form.Item>
+                <RangePicker onChange={onChangeDate} />
               </Form.Item>
               <Flex gap={5}>
                 <Button type="primary" size="small" onClick={onSearch}>
                   Search
                 </Button>
-                <Button
-                  color="primary"
-                  // type="dashed"
-                  size="small"
-                  onClick={onReset}
-                >
+                <Button color="primary" size="small" onClick={onReset}>
                   Reset
                 </Button>
               </Flex>

@@ -47,3 +47,7 @@ export const updateHomepageInfo = (params: {}) => {
 export const addStory = (params: {}) => {
   return post("http://localhost:5000/addStory", params);
 };
+
+export const getStory = (params: {}) => {
+  return get("http://localhost:5000/topStoriesInfo", params);
+};

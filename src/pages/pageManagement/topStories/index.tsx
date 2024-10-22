@@ -1,6 +1,7 @@
 import TitlePage from "@/components/titlePage/titlePage";
 import React, { useEffect, useState } from "react";
 import { CloseOutlined } from "@ant-design/icons";
+import style from "./style.module.scss";
 import {
   Button,
   Card,
@@ -8,21 +9,27 @@ import {
   Form,
   Input,
   message,
+  Modal,
   Space,
   Typography,
   Upload,
 } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { addStory } from "@/services/api";
+import { addStory, getStory } from "@/services/api";
 
 const TopStories = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const [disableBtn, setDisableBtn] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [storyList, setStoryList] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+
   useEffect(() => {
-    console.log("Form Values Updated:", form.getFieldsValue());
-  }, [form]);
+    getStory({}).then((res) => {
+      setStoryList(res.data);
+    });
+  }, []);
 
   const renderFormItem = (subField: any) => {
     const type = form.getFieldValue(["items", subField.name, "type"]);
@@ -102,6 +109,7 @@ const TopStories = () => {
     addStory(data)
       .then((res) => {
         messageApi.success(res.data.message);
+        handleCloseModal();
       })
       .catch((err) => {
         console.error("Error:", err.response ? err.response.data : err);
@@ -111,12 +119,41 @@ const TopStories = () => {
       });
   };
 
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    form.resetFields();
+  };
+
   return (
     <div>
       {contextHolder}
       <TitlePage title="Top Stories" />
-      <Flex>
-        <div>asd</div>
+      <Space direction="horizontal" align="start" size="large">
+        <div style={{ width: 400 }}>
+          <Space direction="vertical" size="middle">
+            <Button
+              style={{ width: 300 }}
+              type="primary"
+              onClick={() => setOpenModal(true)}
+            >
+              + Add Story
+            </Button>
+            {storyList.map((list: any, idx: number) => (
+              <li key={idx} className={style.storyList}>
+                {list.title}
+              </li>
+            ))}
+          </Space>
+        </div>
+      </Space>
+      <Modal
+        destroyOnClose
+        width={800}
+        open={openModal}
+        onClose={handleCloseModal}
+        onCancel={handleCloseModal}
+        footer={false}
+      >
         <Form
           form={form}
           onFieldsChange={() => {
@@ -124,7 +161,7 @@ const TopStories = () => {
             setDisableBtn(items?.length === 0);
           }}
           name="dynamic_form"
-          style={{ maxWidth: 600 }}
+          style={{ width: 600 }}
           autoComplete="off"
           initialValues={{ items: [] }}
         >
@@ -199,7 +236,7 @@ const TopStories = () => {
             }}
           </Form.Item> */}
         </Form>
-      </Flex>
+      </Modal>
     </div>
   );
 };

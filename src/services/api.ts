@@ -55,3 +55,7 @@ export const getStory = (params: {}) => {
 export const deleteStory = (params: {}) => {
   return post("http://localhost:5000/deleteStory", params);
 };
+
+export const updateStory = (params: {}) => {
+  return post("http://localhost:5000/updateStory", params);
+};

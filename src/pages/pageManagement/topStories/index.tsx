@@ -4,7 +4,7 @@ import { CloseOutlined } from "@ant-design/icons";
 import style from "./style.module.scss";
 import { Button, Card, Flex, Form, Input, message, Space, Upload } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { addStory, deleteStory, getStory } from "@/services/api";
+import { addStory, deleteStory, getStory, updateStory } from "@/services/api";
 import DeleteButton from "@/components/delButton/delButton";
 import { STATUS } from "@/utils/constant";
 
@@ -15,6 +15,7 @@ const TopStories = () => {
   const [storyList, setStoryList] = useState([]);
   const [selectedStory, setSelectedStory] = useState<any>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [mode, setMode] = useState("addMode");
 
   useEffect(() => {
     onLoad();
@@ -64,15 +65,28 @@ const TopStories = () => {
 
   const handleAddOrUpdateStory = () => {
     form.validateFields().then((data) => {
-      setLoading(true);
-      addStory(data)
-        .then((res) => {
-          messageApi.success(res.data.message);
-          resetForm(); // Reset form on success
-          refreshStories(); // Reload stories
-        })
-        .catch((err) => console.error("Error:", err.response?.data || err))
-        .finally(() => setLoading(false));
+      if (!selectedStory) {
+        setLoading(true);
+        addStory(data)
+          .then((res) => {
+            messageApi.success(res.data.message);
+            resetForm(); // Reset form on success
+            refreshStories(); // Reload stories
+          })
+          .catch((err) => console.error("Error:", err.response?.data || err))
+          .finally(() => setLoading(false));
+      } else {
+        const id = selectedStory._id;
+        setLoading(true);
+        updateStory({ id, ...data })
+          .then((res) => {
+            messageApi.success(res.data.message);
+            resetForm(); // Reset form on success
+            refreshStories(); // Reload stories
+          })
+          .catch((err) => console.error("Error:", err.response?.data || err))
+          .finally(() => setLoading(false));
+      }
     });
   };
 
@@ -87,6 +101,7 @@ const TopStories = () => {
 
   const handleEditStory = (story: any) => {
     setSelectedStory(story);
+    setMode("editMode");
   };
 
   const renderFormItem = (subField: any) => {
@@ -165,7 +180,10 @@ const TopStories = () => {
             <Button
               style={{ width: 300 }}
               type="primary"
-              onClick={resetForm} // Open for a new story (reset form)
+              onClick={() => {
+                resetForm();
+                setMode("addMode");
+              }} // Open for a new story (reset form)
             >
               + Add Story
             </Button>

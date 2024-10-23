@@ -59,3 +59,7 @@ export const deleteStory = (params: {}) => {
 export const updateStory = (params: {}) => {
   return post("http://localhost:5000/updateStory", params);
 };
+
+export const updateDisplayStory = (params: {}) => {
+  return post("http://localhost:5000/updateDisplayStory", params);
+};

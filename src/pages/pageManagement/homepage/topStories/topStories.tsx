@@ -1,8 +1,12 @@
 import Typography from "antd/es/typography";
 import React, { useEffect, useState } from "react";
-import { InfoCircleOutlined } from "@ant-design/icons";
-import { getStory } from "@/services/api";
-import Table, { ColumnProps } from "antd/es/table";
+import {
+  InfoCircleOutlined,
+  PlusOutlined,
+  MinusOutlined,
+} from "@ant-design/icons";
+import { getStory, updateDisplayStory } from "@/services/api";
+import Table, { ColumnsType } from "antd/es/table";
 import {
   Button,
   DatePicker,
@@ -10,21 +14,31 @@ import {
   Flex,
   Form,
   Input,
-  Space,
+  message,
 } from "antd";
 import Refresh from "@/components/refresh/refresh";
+import SelectedStories from "./components/selectedStories";
+import { IStory } from "./interface";
+import { STATUS } from "@/utils/constant";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
+const MAXIMUM_DISPLAY = 3;
 
 const TopStories = () => {
+  const [messageApi, contextHolder] = message.useMessage();
   const [searchForm] = Form.useForm();
   const [data, setData] = useState([]);
   const [date, setDate] = useState<any>({});
+  const [selectedStories, setSelectedStories] = useState<IStory[]>([]);
+
+  const hasReachMaximumDisplay = selectedStories.length === MAXIMUM_DISPLAY;
 
   const onLoad = async (params = {}) => {
     const result = await getStory(params);
     setData(result.data);
+    // get selected stories
+    setSelectedStories(result.data.filter((o: any) => o.isDisplayed === 1));
   };
 
   const onReset = () => {
@@ -33,7 +47,21 @@ const TopStories = () => {
     onLoad();
   };
 
-  const columns: ColumnProps[] = [
+  const updateDisplay = async (id: string, display: number) => {
+    if (hasReachMaximumDisplay) {
+      messageApi.warning(
+        "Selected Stories already raech the maximum of display"
+      );
+    } else {
+      const response = await updateDisplayStory({ id, isDisplayed: display });
+      if (response.status === STATUS.SUCCESS) {
+        messageApi.success(response.data.message);
+        onLoad();
+      }
+    }
+  };
+
+  const columns: ColumnsType<IStory> = [
     {
       key: 1,
       title: "Title",
@@ -56,6 +84,35 @@ const TopStories = () => {
       title: "Created At",
       dataIndex: "createdAt",
       width: 200,
+    },
+    {
+      key: 4,
+      title: "Operation",
+      width: 150,
+      dataIndex: "isDisplayed",
+      align: "center",
+      render: (isDisplayed: number, records: IStory) => (
+        <div>
+          {+isDisplayed ? (
+            <Button
+              danger
+              type="primary"
+              size="small"
+              onClick={() => updateDisplay(records._id, 0)}
+            >
+              <MinusOutlined />
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              size="small"
+              onClick={() => updateDisplay(records._id, 1)}
+            >
+              <PlusOutlined />
+            </Button>
+          )}
+        </div>
+      ),
     },
   ];
 
@@ -87,7 +144,14 @@ const TopStories = () => {
 
   return (
     <div>
+      {contextHolder}
       <Title level={4}>Top Stories</Title>
+      <div style={{ margin: "20px 0" }}>
+        <Title level={5}>
+          Selected Stories {`${selectedStories.length} / ${MAXIMUM_DISPLAY}`}
+        </Title>
+        <SelectedStories list={selectedStories} onLoad={onLoad} />
+      </div>
       <div style={{ marginBottom: "10px" }}>
         <InfoCircleOutlined />
         <span style={{ marginLeft: "10px" }}>Note</span>

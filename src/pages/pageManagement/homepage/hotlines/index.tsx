@@ -27,6 +27,8 @@ type Props = {
   onLoad: Function;
 };
 
+const { Title } = Typography;
+
 const Hotlines = ({ data, onLoad }: Props) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [mode, setMode] = useState("");
@@ -187,7 +189,7 @@ const Hotlines = ({ data, onLoad }: Props) => {
   return (
     <div>
       {contextHolder}
-      <TitlePage title="Hotlines Section" />
+      <Title level={4}>Hotline Section</Title>
       <Button type="primary" onClick={() => handleOpenModal("addMode")}>
         Add Hotline
       </Button>

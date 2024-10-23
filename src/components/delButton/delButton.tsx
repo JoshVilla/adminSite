@@ -19,7 +19,12 @@ const DeleteButton = ({ trigger, loading }: Props) => {
 
   return (
     <React.Fragment>
-      <Button danger size="small" onClick={() => setOpenModal(true)}>
+      <Button
+        danger
+        size="small"
+        type="primary"
+        onClick={() => setOpenModal(true)}
+      >
         Delete
       </Button>
       <Modal

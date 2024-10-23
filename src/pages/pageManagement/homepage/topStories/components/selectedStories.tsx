@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { IStory } from "../interface";
 import { updateDisplayStory } from "@/services/api";
 import { STATUS } from "@/utils/constant";
+import CImage from "@/components/image/image";
 
 type Props = {
   list: IStory[];
@@ -64,12 +65,7 @@ const SelectedStories = ({ list, onLoad }: Props) => {
             ]}
           >
             <List.Item.Meta
-              avatar={
-                <img
-                  src={items.thumbnail}
-                  style={{ width: 40, height: 40, objectFit: "contain" }}
-                />
-              }
+              avatar={<CImage imageUrl={items.thumbnail} />}
               title={<Title level={5}>{items.title}</Title>}
               description={
                 <div
@@ -93,11 +89,7 @@ const SelectedStories = ({ list, onLoad }: Props) => {
       >
         {storyDetails && ( // Add a check to ensure storyDetails is not null
           <div>
-            <img
-              src={storyDetails.thumbnail}
-              alt=""
-              style={{ maxHeight: "100px" }}
-            />
+            <CImage imageUrl={storyDetails.thumbnail} maxHeight={100} />
             <Title level={4}>{storyDetails.title}</Title>
             {storyDetails.content.map((paragraph: any, idx: number) => (
               <p key={idx} style={{ marginBottom: "10px" }}>

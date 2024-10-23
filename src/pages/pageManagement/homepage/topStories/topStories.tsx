@@ -20,6 +20,7 @@ import Refresh from "@/components/refresh/refresh";
 import SelectedStories from "./components/selectedStories";
 import { IStory } from "./interface";
 import { STATUS } from "@/utils/constant";
+import CImage from "@/components/image/image";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -48,7 +49,7 @@ const TopStories = () => {
   };
 
   const updateDisplay = async (id: string, display: number) => {
-    if (hasReachMaximumDisplay) {
+    if (hasReachMaximumDisplay && display === 1) {
       messageApi.warning(
         "Selected Stories already raech the maximum of display"
       );
@@ -71,12 +72,7 @@ const TopStories = () => {
       key: 2,
       title: "Thumbnail",
       dataIndex: "thumbnail",
-      render: (thumbnail: string) => (
-        <img
-          src={thumbnail}
-          style={{ width: 50, height: 50, objectFit: "contain" }}
-        />
-      ),
+      render: (thumbnail: string) => <CImage imageUrl={thumbnail} />,
       width: 200,
     },
     {

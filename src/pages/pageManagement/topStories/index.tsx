@@ -19,7 +19,7 @@ import { addStory, deleteStory, getStory, updateStory } from "@/services/api";
 import DeleteButton from "@/components/delButton/delButton";
 import { STATUS } from "@/utils/constant";
 import { combineClassNames } from "@/utils/helpers";
-import { IStoryList } from "./interface";
+import { IDate, IStoryList } from "./interface";
 
 const { RangePicker } = DatePicker;
 
@@ -32,6 +32,7 @@ const TopStories = () => {
   const [selectedStory, setSelectedStory] = useState<IStoryList | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [activeList, setActiveList] = useState<Number | null>(null);
+  const [date, setDate] = useState<any>({});
 
   useEffect(() => {
     onLoad();
@@ -85,6 +86,7 @@ const TopStories = () => {
         setLoading(true);
         addStory(data)
           .then((res) => {
+            setActiveList(null);
             messageApi.success(res.data.message);
             resetForm(); // Reset form on success
             refreshStories(); // Reload stories
@@ -194,30 +196,27 @@ const TopStories = () => {
 
   const onReset = () => {
     searchForm.resetFields();
-    onLoad({});
+    setDate({});
+    onLoad();
   };
 
   const onSearch = () => {
     const searchParams = searchForm.getFieldsValue();
-    const { title, date } = searchParams;
-
-    if (date && date.length === 2) {
-      const [startDate, endDate] = date;
-      console.log("Start Date:", startDate);
-      console.log("End Date:", endDate);
-      onLoad({ title, date: [startDate, endDate] });
-    } else {
-      onLoad({ title });
+    const { title } = searchParams;
+    let dates = date;
+    if (date.length === 2) {
+      dates = {
+        start: date[0],
+        end: date[1],
+      };
     }
-
-    console.log(searchForm.getFieldsValue());
+    onLoad({ title, dates });
   };
 
-  const onChangeDate: DatePickerProps<any>["onChange"] = (
-    dates,
-    dateStrings
-  ) => {
-    searchForm.setFieldValue("date", dateStrings); // Just store the raw date strings in the form
+  const onChangeDate: DatePickerProps<any>["onChange"] = (_, dateStrings) => {
+    if (dateStrings.length === 2) {
+      setDate(dateStrings);
+    }
   };
 
   return (
@@ -237,11 +236,11 @@ const TopStories = () => {
             >
               + Add Story
             </Button>
-            <Form form={searchForm} initialValues={{ title: "", date: [] }}>
+            <Form form={searchForm} initialValues={{ title: "", date: "" }}>
               <Form.Item name="title">
                 <Input placeholder="Search Title" />
               </Form.Item>
-              <Form.Item>
+              <Form.Item name="date">
                 <RangePicker onChange={onChangeDate} />
               </Form.Item>
               <Flex gap={5}>

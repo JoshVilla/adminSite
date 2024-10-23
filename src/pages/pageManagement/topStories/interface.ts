@@ -7,3 +7,8 @@ export interface IStoryList {
   createdAt: string;
   __v: number;
 }
+
+export interface IDate {
+  endDate: string;
+  startDate: string;
+}

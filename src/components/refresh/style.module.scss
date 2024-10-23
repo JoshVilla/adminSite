@@ -1,0 +1,9 @@
+.refresh {
+  text-align: center;
+  width: 30px;
+  transition: all .1s;
+  cursor: pointer;
+  &:hover {
+    scale: 1.1;
+  }
+}

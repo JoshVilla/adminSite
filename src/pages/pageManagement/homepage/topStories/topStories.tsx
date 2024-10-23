@@ -12,6 +12,7 @@ import {
   Input,
   Space,
 } from "antd";
+import Refresh from "@/components/refresh/refresh";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -113,7 +114,12 @@ const TopStories = () => {
             </Form.Item>
           </Flex>
         </Form>
-        <Table columns={columns} dataSource={data} size="small" />
+        <div>
+          <Flex justify="end">
+            <Refresh call={onLoad} />
+          </Flex>
+          <Table columns={columns} dataSource={data} size="small" />
+        </div>
       </div>
     </div>
   );

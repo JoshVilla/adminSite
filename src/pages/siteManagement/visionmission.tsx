@@ -4,6 +4,7 @@ import style from "./style.module.scss";
 import { ISiteInfo } from "./interface";
 import { useForm } from "antd/es/form/Form";
 import { siteInfoUpdate } from "@/services/api";
+import Captcha from "@/components/captcha/captcha";
 const { TextArea } = Input;
 type Props = {
   data: ISiteInfo;
@@ -13,6 +14,7 @@ const VisionMission = ({ data }: Props) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = useForm();
   const [loading, setLoading] = useState(false);
+  const [openCaptcha, setOpenCaptcha] = useState(false);
 
   const handleUpdate = () => {
     setLoading((prev) => !prev);
@@ -54,10 +56,19 @@ const VisionMission = ({ data }: Props) => {
             </Form.Item>
           </Col>
         </Row>
-        <Button loading={loading} type="primary" onClick={handleUpdate}>
+        <Button
+          loading={loading}
+          type="primary"
+          onClick={() => setOpenCaptcha(true)}
+        >
           Update
         </Button>
       </Form>
+      <Captcha
+        open={openCaptcha}
+        setOpen={setOpenCaptcha}
+        onVerified={handleUpdate}
+      />
     </div>
   );
 };

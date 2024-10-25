@@ -4,6 +4,7 @@ import { ISiteInfo } from "./interface";
 import { useForm } from "antd/es/form/Form";
 import { siteInfoUpdate } from "@/services/api";
 import { UploadOutlined } from "@ant-design/icons";
+import Captcha from "@/components/captcha/captcha";
 
 type Props = {
   data: ISiteInfo;
@@ -14,6 +15,7 @@ const BasicInformation = ({ data }: Props) => {
   const [loading, setLoading] = useState(false);
   const [logo, setLogo] = useState<File | null>(null); // Separate state for logo
   const [form] = useForm();
+  const [openCaptcha, setOpenCaptcha] = useState(false);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -30,8 +32,6 @@ const BasicInformation = ({ data }: Props) => {
       ...formValues,
       logo, // Include the logo state if updated
     };
-
-    console.log("Form values on submit:", params);
 
     siteInfoUpdate({ ...params, id: data._id }).then((res) => {
       setLoading(false);
@@ -123,11 +123,20 @@ const BasicInformation = ({ data }: Props) => {
         </Form.Item>
         {/* </Space> */}
 
-        <Button loading={loading} type="primary" onClick={handleUpdate}>
+        <Button
+          loading={loading}
+          type="primary"
+          onClick={() => setOpenCaptcha(true)}
+        >
           Update
         </Button>
         {/* </Space> */}
       </Form>
+      <Captcha
+        open={openCaptcha}
+        setOpen={setOpenCaptcha}
+        onVerified={handleUpdate}
+      />
     </div>
   );
 };

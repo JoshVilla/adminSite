@@ -66,7 +66,7 @@ const Officials = () => {
           <Flex align="center">
             <Button type="link">Edit</Button>
             <DeleteButton
-              trigger={() => onDelete(records._id)}
+              trigger={() => onDelete(records)}
               loading={loadDelete}
             />
           </Flex>
@@ -159,10 +159,11 @@ const Officials = () => {
     }
   };
 
-  const onDelete = async (id: string) => {
+  const onDelete = async (records: any) => {
+    const { _id, profilePublicId } = records;
     setLoadDelete(true);
     try {
-      const response = await deleteOfficial({ id });
+      const response = await deleteOfficial({ id: _id, profilePublicId });
       if (response.status === STATUS.SUCCESS) {
         message.success(response.data.message);
         onLoad();

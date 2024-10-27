@@ -28,7 +28,6 @@ const Login = () => {
           setIsLoading(false);
           throwMessage(res.status, res.data.message);
           if (res.status === 200) {
-            // let timer = 3;
             navigate("admin/adminManagement");
             dispatch(getUserInfo(res.data.data));
             if (isLoggedIn) localStorage.removeItem("status");

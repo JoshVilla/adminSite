@@ -63,3 +63,11 @@ export const updateStory = (params: {}) => {
 export const updateDisplayStory = (params: {}) => {
   return post("http://localhost:5000/updateDisplayStory", params);
 };
+
+export const getOfficials = (params: {}) => {
+  return post("http://localhost:5000/getOfficials", params);
+};
+
+export const addOfficials = (params: {}) => {
+  return post("http://localhost:5000/addOfficial", params);
+};

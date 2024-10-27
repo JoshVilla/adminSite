@@ -11,6 +11,7 @@ import Admin from "./pages/adminManagement";
 import SiteManagement from "./pages/siteManagement";
 import Homepage from "./pages/pageManagement";
 import TopStories from "./pages/pageManagement/topStories";
+import Officials from "./pages/pageManagement/officials";
 
 function App() {
   const router = createBrowserRouter(
@@ -22,6 +23,7 @@ function App() {
           <Route path="siteManagement" element={<SiteManagement />} />
           <Route path="homepageManagement" element={<Homepage />} />
           <Route path="topStories" element={<TopStories />} />
+          <Route path="officials" element={<Officials />} />
         </Route>
       </>
     )

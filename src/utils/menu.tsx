@@ -32,8 +32,14 @@ export const menu = [
       },
       {
         key: "topStories",
-        label: "TopStories",
+        label: "Top Stories",
         path: "topStories",
+        icon: <BookOutlined />,
+      },
+      {
+        key: "officials",
+        label: "Officials",
+        path: "officials",
         icon: <BookOutlined />,
       },
     ],

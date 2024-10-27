@@ -18,6 +18,7 @@ const Login = () => {
   });
   const [messageApi, contextHolder] = message.useMessage();
   const handleLogin = () => {
+    const isLoggedIn = localStorage.getItem("status");
     if (loginParams.username && loginParams.password) {
       loginApi({
         username: loginParams.username,
@@ -30,6 +31,7 @@ const Login = () => {
             // let timer = 3;
             navigate("admin/adminManagement");
             dispatch(getUserInfo(res.data.data));
+            if (isLoggedIn) localStorage.removeItem("status");
             const func = () => {
               localStorage.setItem("status", "loggedIn");
             };

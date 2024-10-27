@@ -10,6 +10,7 @@ type Props = {
 };
 
 const Captcha = ({ onVerified, open, setOpen }: Props) => {
+  
   const [captcha, setCaptcha] = useState("");
   const [inputCaptcha, setInputCaptcha] = useState("");
 

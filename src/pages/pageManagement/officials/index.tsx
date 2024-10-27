@@ -30,11 +30,13 @@ const Officials = () => {
   const [searchForm] = Form.useForm();
   const [modalForm] = Form.useForm();
   const [data, setData] = useState([]);
-  const [loadTable, setLoadTable] = useState(false);
-  const [loadForm, setLoadForm] = useState(false);
-  const [loadDelete, setLoadDelete] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [profile, setProfile] = useState("");
+  const [loaders, setLoaders] = useState({
+    loadTable: false,
+    loadForm: false,
+    loadDelete: false,
+  });
   const formLayout = {
     wrapperCol: { span: 16 },
   };
@@ -67,7 +69,7 @@ const Officials = () => {
             <Button type="link">Edit</Button>
             <DeleteButton
               trigger={() => onDelete(records)}
-              loading={loadDelete}
+              loading={loaders.loadDelete}
             />
           </Flex>
         );
@@ -83,7 +85,10 @@ const Officials = () => {
   };
 
   const onLoad = async () => {
-    setLoadTable(true);
+    setLoaders((prev) => ({
+      ...prev,
+      loadTable: true,
+    }));
     const params = searchForm.getFieldsValue();
     try {
       const response = await getOfficials(params);
@@ -91,7 +96,10 @@ const Officials = () => {
     } catch (error) {
       console.error("Error fetching officials:", error);
     } finally {
-      setLoadTable(false);
+      setLoaders((prev) => ({
+        ...prev,
+        loadTable: false,
+      }));
     }
   };
 
@@ -121,7 +129,10 @@ const Officials = () => {
   };
 
   const handleSubmitForm = async () => {
-    setLoadForm(true);
+    setLoaders((prev) => ({
+      ...prev,
+      loadForm: true,
+    }));
     let level: number | null = null;
     const { name, position } = modalForm.getFieldsValue();
     switch (position) {
@@ -155,13 +166,19 @@ const Officials = () => {
     } catch (err: any) {
       message.error(err.message);
     } finally {
-      setLoadForm(false);
+      setLoaders((prev) => ({
+        ...prev,
+        loadForm: false,
+      }));
     }
   };
 
   const onDelete = async (records: any) => {
     const { _id, profilePublicId } = records;
-    setLoadDelete(true);
+    setLoaders((prev) => ({
+      ...prev,
+      loadDelete: true,
+    }));
     try {
       const response = await deleteOfficial({ id: _id, profilePublicId });
       if (response.status === STATUS.SUCCESS) {
@@ -171,7 +188,10 @@ const Officials = () => {
     } catch (err: any) {
       message.error(err.message);
     } finally {
-      setLoadDelete(false);
+      setLoaders((prev) => ({
+        ...prev,
+        loadDelete: false,
+      }));
     }
   };
 
@@ -214,7 +234,11 @@ const Officials = () => {
           </Flex>
         </div>
         <div style={{ marginTop: "20px" }}>
-          <Table columns={columns} dataSource={data} loading={loadTable} />
+          <Table
+            columns={columns}
+            dataSource={data}
+            loading={loaders.loadTable}
+          />
         </div>
       </div>
       <Modal
@@ -228,7 +252,7 @@ const Officials = () => {
             key="submit"
             type="primary"
             onClick={handleSubmitForm}
-            loading={loadForm}
+            loading={loaders.loadForm}
           >
             Submit
           </Button>,

@@ -1,9 +1,10 @@
 import axios from "axios";
+const apiUrl = "http://localhost:5000";
 
 export const get = async (url: string, params = {}) => {
   return await axios({
     method: "get",
-    url,
+    url: `${apiUrl + url}`,
     data: { ...params },
     headers: {
       "Content-Type": "application/json",
@@ -60,7 +61,7 @@ export const post = async (url: string, params: Record<string, any> = {}) => {
   // Make the request with the appropriate headers
   return await axios({
     method: "post",
-    url,
+    url: `${apiUrl + url}`,
     data: data,
     headers: {
       // No need to set Content-Type explicitly for FormData, Axios will handle it
@@ -72,7 +73,7 @@ export const post = async (url: string, params: Record<string, any> = {}) => {
 export const deleteData = async (url: string, params = {}) => {
   return await axios({
     method: "post",
-    url,
+    url: `${apiUrl + url}`,
     data: { ...params },
     headers: {
       "Content-Type": "application/json",

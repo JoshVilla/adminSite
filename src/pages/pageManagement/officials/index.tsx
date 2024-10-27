@@ -1,7 +1,7 @@
 import CImage from "@/components/image/image";
 import Refresh from "@/components/refresh/refresh";
 import TitlePage from "@/components/titlePage/titlePage";
-import { addOfficials, getOfficials } from "@/services/api";
+import { addOfficials, deleteOfficial, getOfficials } from "@/services/api";
 import {
   Button,
   Flex,
@@ -17,6 +17,7 @@ import { ColumnProps } from "antd/es/table";
 import React, { useEffect, useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { STATUS } from "@/utils/constant";
+import DeleteButton from "@/components/delButton/delButton";
 
 const PostionList = [
   { value: "", label: "All" },
@@ -31,6 +32,7 @@ const Officials = () => {
   const [data, setData] = useState([]);
   const [loadTable, setLoadTable] = useState(false);
   const [loadForm, setLoadForm] = useState(false);
+  const [loadDelete, setLoadDelete] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [profile, setProfile] = useState("");
   const formLayout = {
@@ -53,6 +55,23 @@ const Officials = () => {
       key: "position",
       title: "Position",
       dataIndex: "position",
+    },
+    {
+      key: "action",
+      title: "Actions",
+      dataIndex: "action",
+      width: 200,
+      render: (_, records) => {
+        return (
+          <Flex align="center">
+            <Button type="link">Edit</Button>
+            <DeleteButton
+              trigger={() => onDelete(records._id)}
+              loading={loadDelete}
+            />
+          </Flex>
+        );
+      },
     },
   ];
 
@@ -137,6 +156,21 @@ const Officials = () => {
       message.error(err.message);
     } finally {
       setLoadForm(false);
+    }
+  };
+
+  const onDelete = async (id: string) => {
+    setLoadDelete(true);
+    try {
+      const response = await deleteOfficial({ id });
+      if (response.status === STATUS.SUCCESS) {
+        message.success(response.data.message);
+        onLoad();
+      }
+    } catch (err: any) {
+      message.error(err.message);
+    } finally {
+      setLoadDelete(false);
     }
   };
 

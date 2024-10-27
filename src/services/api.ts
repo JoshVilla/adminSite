@@ -1,73 +1,77 @@
 import { deleteData, get, post } from "./service";
 
 export const getAdmins = (params = {}) => {
-  return post("http://localhost:5000/get", params);
+  return post(`/get`, params);
 };
 
 export const loginApi = (params: {}) => {
-  return post("http://localhost:5000/login", params);
+  return post(`/login`, params);
 };
 
 export const addAdmin = (params: {}) => {
-  return post("http://localhost:5000/addAdmin", params);
+  return post(`/addAdmin`, params);
 };
 
 export const deleteAdmin = (params: {}) => {
-  return deleteData("http://localhost:5000/delete", params);
+  return deleteData(`/delete`, params);
 };
 
 export const saveAdmin = (params: {}) => {
-  return post("http://localhost:5000/save", params);
+  return post(`/save`, params);
 };
 
 export const siteInfo = (params: {}) => {
-  return get("http://localhost:5000/siteInfo", params);
+  return get(`/siteInfo`, params);
 };
 
 export const siteInfoUpdate = (params: {}) => {
-  return post("http://localhost:5000/siteInfoUpdate", params);
+  return post(`/siteInfoUpdate`, params);
 };
 
 export const homepageInfo = (params: {}) => {
-  return get("http://localhost:5000/homepageInfo", params);
+  return get(`/homepageInfo`, params);
 };
 
 export const addHomepageInfo = (params: {}) => {
-  return post("http://localhost:5000/addHomePageInfo", params);
+  return post(`/addHomePageInfo`, params);
 };
 
 export const deleteHomepageInfo = (params: {}) => {
-  return post("http://localhost:5000/deleteHomePageInfo", params);
+  return post(`/deleteHomePageInfo`, params);
 };
 
 export const updateHomepageInfo = (params: {}) => {
-  return post("http://localhost:5000/updateHomepageInfo", params);
+  return post(`/updateHomepageInfo`, params);
 };
 
 export const addStory = (params: {}) => {
-  return post("http://localhost:5000/addStory", params);
+  return post(`/addStory`, params);
 };
 
 export const getStory = (params: {}) => {
-  return post("http://localhost:5000/topStoriesInfo", params);
+  return post(`/topStoriesInfo`, params);
 };
 
 export const deleteStory = (params: {}) => {
-  return post("http://localhost:5000/deleteStory", params);
+  return post(`/deleteStory`, params);
 };
 
 export const updateStory = (params: {}) => {
-  return post("http://localhost:5000/updateStory", params);
+  return post(`/updateStory`, params);
 };
 
 export const updateDisplayStory = (params: {}) => {
-  return post("http://localhost:5000/updateDisplayStory", params);
+  return post(`/updateDisplayStory`, params);
 };
 
 export const getOfficials = (params: {}) => {
-  return post("http://localhost:5000/getOfficials", params);
+  return post(`/getOfficials`, params);
 };
 
 export const addOfficials = (params: {}) => {
-  return post("http://localhost:5000/addOfficial", params);
+  return post(`/addOfficial`, params);
+};
+
+export const deleteOfficial = (params: {}) => {
+  return post(`/deleteOfficial`, params);
 };

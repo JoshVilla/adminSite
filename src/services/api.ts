@@ -75,3 +75,7 @@ export const addOfficials = (params: {}) => {
 export const deleteOfficial = (params: {}) => {
   return post(`/deleteOfficial`, params);
 };
+
+export const updateOfficial = (params: {}) => {
+  return post(`/updateOfficial`, params);
+};

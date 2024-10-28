@@ -1,7 +1,12 @@
 import CImage from "@/components/image/image";
 import Refresh from "@/components/refresh/refresh";
 import TitlePage from "@/components/titlePage/titlePage";
-import { addOfficials, deleteOfficial, getOfficials } from "@/services/api";
+import {
+  addOfficials,
+  deleteOfficial,
+  getOfficials,
+  updateOfficial,
+} from "@/services/api";
 import {
   Button,
   Flex,
@@ -18,6 +23,7 @@ import React, { useEffect, useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { STATUS } from "@/utils/constant";
 import DeleteButton from "@/components/delButton/delButton";
+import { OfficalProps } from "./interface";
 
 const PostionList = [
   { value: "", label: "All" },
@@ -29,9 +35,10 @@ const PostionList = [
 const Officials = () => {
   const [searchForm] = Form.useForm();
   const [modalForm] = Form.useForm();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<OfficalProps[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [profile, setProfile] = useState("");
+  const [mode, setMode] = useState("");
   const [loaders, setLoaders] = useState({
     loadTable: false,
     loadForm: false,
@@ -41,7 +48,7 @@ const Officials = () => {
     wrapperCol: { span: 16 },
   };
 
-  const columns: ColumnProps[] = [
+  const columns: ColumnProps<OfficalProps>[] = [
     {
       key: "profile",
       title: "Profile",
@@ -63,10 +70,15 @@ const Officials = () => {
       title: "Actions",
       dataIndex: "action",
       width: 200,
-      render: (_, records) => {
+      render: (_, records: OfficalProps) => {
         return (
           <Flex align="center">
-            <Button type="link">Edit</Button>
+            <Button
+              type="link"
+              onClick={() => handleOpenModal("editMode", records)}
+            >
+              Edit
+            </Button>
             <DeleteButton
               trigger={() => onDelete(records)}
               loading={loaders.loadDelete}
@@ -103,8 +115,18 @@ const Officials = () => {
     }
   };
 
-  const handleOpenModal = () => {
+  const handleOpenModal = (modeSubmit: string, records?: OfficalProps) => {
+    setMode(modeSubmit);
     setOpenModal(true);
+    if (records) {
+      const { name, position, _id } = records;
+      console.log(name, position, _id);
+      modalForm.setFieldsValue({
+        name,
+        position,
+        id: _id,
+      });
+    }
   };
 
   const handleCloseModal = () => {
@@ -133,43 +155,83 @@ const Officials = () => {
       ...prev,
       loadForm: true,
     }));
-    let level: number | null = null;
-    const { name, position } = modalForm.getFieldsValue();
-    switch (position) {
-      case "Mayor":
-        level = 3;
-        break;
-      case "Vice Mayor":
-        level = 2;
-        break;
-      case "Councilor":
-        level = 1;
-        break;
-      default:
-        break;
-    }
-
-    const payload = {
-      name,
-      level,
-      position,
-      profile,
-    };
-
-    try {
-      const response = await addOfficials(payload);
-      if (response.status === STATUS.SUCCESS) {
-        message.success(response.data.message);
-        handleCloseModal();
-        onLoad();
+    if (mode === "addMode") {
+      let level: number | null = null;
+      const { name, position } = modalForm.getFieldsValue();
+      switch (position) {
+        case "Mayor":
+          level = 3;
+          break;
+        case "Vice Mayor":
+          level = 2;
+          break;
+        case "Councilor":
+          level = 1;
+          break;
+        default:
+          break;
       }
-    } catch (err: any) {
-      message.error(err.message);
-    } finally {
-      setLoaders((prev) => ({
-        ...prev,
-        loadForm: false,
-      }));
+
+      const payload = {
+        name,
+        level,
+        position,
+        profile,
+      };
+
+      try {
+        const response = await addOfficials(payload);
+        if (response.status === STATUS.SUCCESS) {
+          message.success(response.data.message);
+          handleCloseModal();
+          onLoad();
+        }
+      } catch (err: any) {
+        message.error(err.message);
+      } finally {
+        setLoaders((prev) => ({
+          ...prev,
+          loadForm: false,
+        }));
+      }
+    } else {
+      try {
+        const { name, position, id } = modalForm.getFieldsValue();
+        let level: number | null = null;
+        const payload = {
+          id,
+          name,
+          level,
+          position,
+          profile,
+        };
+        switch (position) {
+          case "Mayor":
+            level = 3;
+            break;
+          case "Vice Mayor":
+            level = 2;
+            break;
+          case "Councilor":
+            level = 1;
+            break;
+          default:
+            break;
+        }
+        const response = await updateOfficial(payload);
+        if (response.status === STATUS.SUCCESS) {
+          message.success(response.data.message);
+          handleCloseModal();
+          onLoad();
+        }
+      } catch (err: any) {
+        message.error(err.message);
+      } finally {
+        setLoaders((prev) => ({
+          ...prev,
+          loadForm: false,
+        }));
+      }
     }
   };
 
@@ -227,7 +289,7 @@ const Officials = () => {
         </Form>
         <div>
           <Flex align="center" gap={10}>
-            <Button type="primary" onClick={handleOpenModal}>
+            <Button type="primary" onClick={() => handleOpenModal("addMode")}>
               Add Official
             </Button>
             <Refresh call={onLoad} />
@@ -246,7 +308,7 @@ const Officials = () => {
         open={openModal}
         onClose={handleCloseModal}
         onCancel={handleCloseModal}
-        title="Add Official"
+        title={mode === "addMode" ? `Add Official` : "Edit Official"}
         footer={[
           <Button
             key="submit"
@@ -264,6 +326,7 @@ const Officials = () => {
             name: "",
             position: "Mayor",
             profile: "",
+            id: "",
           }}
         >
           <Form.Item label="Profile" name="profile">
@@ -290,6 +353,9 @@ const Officials = () => {
               showSearch
               options={PostionList.filter((o) => o.label !== "All")}
             />
+          </Form.Item>
+          <Form.Item name="id" style={{ display: "none" }}>
+            <Input />
           </Form.Item>
         </Form>
       </Modal>

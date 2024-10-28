@@ -190,10 +190,12 @@ const Officials = () => {
       const response = isAddMode
         ? await addOfficials(payload)
         : await updateOfficial(payload);
-      if (response.status === STATUS.SUCCESS) {
+      if (response.data.code === 0) {
         message.success(response.data.message);
         handleCloseModal();
         onLoad();
+      } else {
+        message.error(response.data.message);
       }
     } catch (err: any) {
       message.error(err.message);

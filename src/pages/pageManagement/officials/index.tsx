@@ -16,10 +16,11 @@ import {
   Modal,
   Select,
   Table,
+  Tag,
   Upload,
 } from "antd";
 import { ColumnProps } from "antd/es/table";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { STATUS } from "@/utils/constant";
 import DeleteButton from "@/components/delButton/delButton";
@@ -44,6 +45,7 @@ const Officials = () => {
     loadForm: false,
     loadDelete: false,
   });
+
   const formLayout = {
     wrapperCol: { span: 16 },
   };
@@ -64,6 +66,9 @@ const Officials = () => {
       key: "position",
       title: "Position",
       dataIndex: "position",
+      render: (position) => (
+        <Tag color={colorCodePosition(position)}>{position}</Tag>
+      ),
     },
     {
       key: "action",
@@ -104,7 +109,8 @@ const Officials = () => {
     const params = searchForm.getFieldsValue();
     try {
       const response = await getOfficials(params);
-      setData(response.data.data);
+      const officialData = response.data.data;
+      setData(officialData);
     } catch (error) {
       console.error("Error fetching officials:", error);
     } finally {
@@ -151,87 +157,48 @@ const Officials = () => {
   };
 
   const handleSubmitForm = async () => {
-    setLoaders((prev) => ({
-      ...prev,
-      loadForm: true,
-    }));
-    if (mode === "addMode") {
-      let level: number | null = null;
-      const { name, position } = modalForm.getFieldsValue();
+    const { name, position, id } = modalForm.getFieldsValue();
+
+    if (!name) return message.warning("Please input a name");
+
+    setLoaders((prev) => ({ ...prev, loadForm: true }));
+
+    const isAddMode = mode === "addMode";
+
+    const getLevel = (position: string): number | null => {
       switch (position) {
         case "Mayor":
-          level = 3;
-          break;
+          return 3;
         case "Vice Mayor":
-          level = 2;
-          break;
+          return 2;
         case "Councilor":
-          level = 1;
-          break;
+          return 1;
         default:
-          break;
+          return null;
       }
+    };
 
-      const payload = {
-        name,
-        level,
-        position,
-        profile,
-      };
+    const payload = {
+      id: !isAddMode ? id : undefined,
+      name,
+      level: getLevel(position),
+      position,
+      profile,
+    };
 
-      try {
-        const response = await addOfficials(payload);
-        if (response.status === STATUS.SUCCESS) {
-          message.success(response.data.message);
-          handleCloseModal();
-          onLoad();
-        }
-      } catch (err: any) {
-        message.error(err.message);
-      } finally {
-        setLoaders((prev) => ({
-          ...prev,
-          loadForm: false,
-        }));
+    try {
+      const response = isAddMode
+        ? await addOfficials(payload)
+        : await updateOfficial(payload);
+      if (response.status === STATUS.SUCCESS) {
+        message.success(response.data.message);
+        handleCloseModal();
+        onLoad();
       }
-    } else {
-      try {
-        const { name, position, id } = modalForm.getFieldsValue();
-        let level: number | null = null;
-        const payload = {
-          id,
-          name,
-          level,
-          position,
-          profile,
-        };
-        switch (position) {
-          case "Mayor":
-            level = 3;
-            break;
-          case "Vice Mayor":
-            level = 2;
-            break;
-          case "Councilor":
-            level = 1;
-            break;
-          default:
-            break;
-        }
-        const response = await updateOfficial(payload);
-        if (response.status === STATUS.SUCCESS) {
-          message.success(response.data.message);
-          handleCloseModal();
-          onLoad();
-        }
-      } catch (err: any) {
-        message.error(err.message);
-      } finally {
-        setLoaders((prev) => ({
-          ...prev,
-          loadForm: false,
-        }));
-      }
+    } catch (err: any) {
+      message.error(err.message);
+    } finally {
+      setLoaders((prev) => ({ ...prev, loadForm: false }));
     }
   };
 
@@ -255,6 +222,19 @@ const Officials = () => {
         loadDelete: false,
       }));
     }
+  };
+
+  const colorCodePosition = (
+    val: "Mayor" | "Vice Mayor" | "Councilor"
+  ): string | undefined => {
+    const colorMap: { [key in "Mayor" | "Vice Mayor" | "Councilor"]: string } =
+      {
+        Mayor: "blue",
+        "Vice Mayor": "green",
+        Councilor: "purple",
+      };
+
+    return colorMap[val];
   };
 
   useEffect(() => {
@@ -297,6 +277,7 @@ const Officials = () => {
         </div>
         <div style={{ marginTop: "20px" }}>
           <Table
+            size="small"
             columns={columns}
             dataSource={data}
             loading={loaders.loadTable}

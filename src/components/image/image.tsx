@@ -1,5 +1,5 @@
 import React from "react";
-import DefaultLogo from "../../../public/cordonLogo.png";
+import DefaultLogo from "/cordonLogo.png";
 type Props = {
   imageUrl: string;
   height?: number;

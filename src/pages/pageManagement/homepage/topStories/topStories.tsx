@@ -1,10 +1,6 @@
 import Typography from "antd/es/typography";
 import React, { useEffect, useState } from "react";
-import {
-  InfoCircleOutlined,
-  PlusOutlined,
-  MinusOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import { getStory, updateDisplayStory } from "@/services/api";
 import Table, { ColumnsType } from "antd/es/table";
 import {
@@ -21,6 +17,7 @@ import SelectedStories from "./components/selectedStories";
 import { IStory } from "./interface";
 import { STATUS } from "@/utils/constant";
 import CImage from "@/components/image/image";
+import Note from "@/components/note/note";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -134,6 +131,10 @@ const TopStories = () => {
     }
   };
 
+  const noteList = [
+    "Choose 3 stories to display in Top Stories in Homepage Page",
+  ];
+
   useEffect(() => {
     onLoad();
   }, []);
@@ -148,13 +149,7 @@ const TopStories = () => {
         </Title>
         <SelectedStories list={selectedStories} onLoad={onLoad} />
       </div>
-      <div style={{ marginBottom: "10px" }}>
-        <InfoCircleOutlined />
-        <span style={{ marginLeft: "10px" }}>Note</span>
-        <ul style={{ marginLeft: "17px", marginTop: "10px" }}>
-          <li>Choose 3 stories to display in Top Stories in Homepage Page</li>
-        </ul>
-      </div>
+      <Note list={noteList} />
       <div style={{ marginTop: "10px" }}>
         <Form {...formLayout} form={searchForm}>
           <Flex align="center" gap={20}>

@@ -28,6 +28,7 @@ import {
 import TextArea from "antd/es/input/TextArea";
 import style from "./style.module.scss";
 import { STATUS } from "@/utils/constant";
+import Note from "@/components/note/note";
 
 const { Title } = Typography;
 
@@ -183,18 +184,6 @@ const Highlights = ({ data, onLoad }: Props) => {
       setloadingAddBtn(false);
     }
   };
-  // const onLoad = () => {
-  //   homepageInfo({}).then((res) => {
-  //     const highlights = res.data[0].highlights;
-  //     setTotalHighlightsDisplayed(
-  //       res.data[0].highlights.filter((o: any) => o.display === "1").length
-  //     );
-
-  //     setDataHighlights(
-  //       highlights.map((items: any) => ({ ...items, key: items.id }))
-  //     );
-  //   });
-  // };
 
   const handleDelete = (records: any) => {
     const { _id, imagePublicId } = records;
@@ -225,6 +214,12 @@ const Highlights = ({ data, onLoad }: Props) => {
     });
   };
 
+  const noteList = [
+    "Uploaded photos will be shown in slideshow in highlight section",
+    "Maximum of 5 can can only be displayed",
+    "If only 1 image is uploaded, it will be shown as static",
+  ];
+
   useEffect(() => {
     setTotalHighlightsDisplayed(
       data?.highlights?.filter((o: any) => o.display === "1").length
@@ -240,17 +235,7 @@ const Highlights = ({ data, onLoad }: Props) => {
       {contextHolder}
       <div>
         <Title level={4}>Highlights Section</Title>
-        <div style={{ marginBottom: "10px" }}>
-          <InfoCircleOutlined />
-          <span style={{ marginLeft: "10px" }}>Note</span>
-          <ul style={{ marginLeft: "17px", marginTop: "10px" }}>
-            <li>
-              Uploaded photos will be shown in slideshow in highlight section{" "}
-            </li>
-            <li>Maximum of 5 can can only be displayed</li>
-            <li>If only 1 image is uploaded, it will be shown as static</li>
-          </ul>
-        </div>
+        <Note list={noteList} />
         <Button type="primary" onClick={() => handleOpenModal("addMode")}>
           Add Highlights
         </Button>

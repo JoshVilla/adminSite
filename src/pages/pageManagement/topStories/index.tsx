@@ -13,6 +13,7 @@ import {
   Upload,
   DatePicker,
   DatePickerProps,
+  Pagination,
 } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { addStory, deleteStory, getStory, updateStory } from "@/services/api";
@@ -20,6 +21,7 @@ import DeleteButton from "@/components/delButton/delButton";
 import { STATUS } from "@/utils/constant";
 import { combineClassNames } from "@/utils/helpers";
 import { IDate, IStoryList } from "./interface";
+import type { PaginationProps } from "antd";
 
 const { RangePicker } = DatePicker;
 
@@ -33,6 +35,12 @@ const TopStories = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [activeList, setActiveList] = useState<Number | null>(null);
   const [date, setDate] = useState<any>({});
+  const [pageObj, setPageObj] = useState({
+    totalData: 0,
+    pageSize: 0,
+    currentPage: 0,
+    totalPages: 0,
+  });
 
   useEffect(() => {
     onLoad();
@@ -53,6 +61,20 @@ const TopStories = () => {
       form.resetFields(); // Reset form for a new story
     }
   }, [selectedStory, form]);
+
+  const itemRender: PaginationProps["itemRender"] = (
+    _,
+    type,
+    originalElement
+  ) => {
+    if (type === "prev") {
+      return <a>Previous</a>;
+    }
+    if (type === "next") {
+      return <a>Next</a>;
+    }
+    return originalElement;
+  };
 
   const uploadOnChange = (info: any, fieldKey = null) => {
     const { fileList } = info;
@@ -186,7 +208,13 @@ const TopStories = () => {
     await getStory(params)
       .then((res) => {
         if (res.status === STATUS.SUCCESS) {
-          setStoryList(res.data);
+          setStoryList(res.data.data);
+          setPageObj({
+            totalData: res.data.totalData,
+            pageSize: res.data.pageSize,
+            currentPage: res.data.currentPage,
+            totalPages: res.data.totalPages,
+          });
         }
       })
       .catch((err) => {
@@ -268,6 +296,14 @@ const TopStories = () => {
                 <div className={style.date}>{list.createdAt}</div>
               </li>
             ))}
+            <Pagination
+              total={pageObj.totalData}
+              itemRender={itemRender}
+              current={pageObj.currentPage}
+              onChange={(page) => {
+                onLoad({ page });
+              }}
+            />
           </Space>
         </div>
 

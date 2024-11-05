@@ -186,6 +186,8 @@ const Officials = () => {
       profile,
     };
 
+    console.log(payload);
+
     try {
       const response = isAddMode
         ? await addOfficials(payload)

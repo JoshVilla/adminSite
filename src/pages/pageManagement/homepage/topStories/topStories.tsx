@@ -33,10 +33,18 @@ const TopStories = () => {
   const hasReachMaximumDisplay = selectedStories.length === MAXIMUM_DISPLAY;
 
   const onLoad = async (params = {}) => {
-    const result = await getStory(params);
-    setData(result.data);
-    // get selected stories
-    setSelectedStories(result.data.filter((o: any) => o.isDisplayed === 1));
+    try {
+      const result = await getStory(params);
+      if (result.status === STATUS.SUCCESS) {
+        setData(result.data.data);
+        // get selected stories
+        setSelectedStories(
+          result.data.data.filter((o: any) => o.isDisplayed === 1)
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onReset = () => {
@@ -48,7 +56,7 @@ const TopStories = () => {
   const updateDisplay = async (id: string, display: number) => {
     if (hasReachMaximumDisplay && display === 1) {
       messageApi.warning(
-        "Selected Stories already raech the maximum of display"
+        "Selected Stories already reach the maximum of display"
       );
     } else {
       const response = await updateDisplayStory({ id, isDisplayed: display });

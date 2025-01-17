@@ -31,6 +31,7 @@ import { useForm } from "antd/es/form/Form";
 import Captcha from "@/components/captcha/captcha";
 import { isSuperAdmin } from "@/utils/helpers";
 import TitlePage from "@/components/titlePage/titlePage";
+import { STATUS } from "@/utils/constant";
 
 const { RangePicker } = DatePicker;
 const Admin = () => {
@@ -236,12 +237,19 @@ const Admin = () => {
   };
 
   const onLoad = async () => {
-    await getAdmins(params).then((res) => {
-      let data = res.data;
-      setisLoading(false);
+    try {
+      const res = await getAdmins(params);
+      setLoading(true);
+      if (res.status === STATUS.SUCCESS) {
+        let data = res.data;
+        console.log(params, "params");
 
-      setData(data.map((items: any) => ({ ...items, key: items._id })));
-    });
+        setisLoading(false);
+        setData(data.map((items: any) => ({ ...items, key: items._id })));
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onChangeDate = (range: any) => {

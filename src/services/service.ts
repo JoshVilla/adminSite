@@ -1,80 +1,81 @@
 import axios from "axios";
+
 const apiUrl = "http://localhost:5000";
 
+/**
+ * Perform a GET request.
+ * @param url Endpoint URL (relative to `apiUrl`).
+ * @param params Query parameters.
+ * @returns Axios response.
+ */
 export const get = async (url: string, params = {}) => {
-  return await axios({
-    method: "get",
-    url: `${apiUrl + url}`,
-    data: { ...params },
+  return axios.get(`${apiUrl + url}`, {
+    params, // Pass params directly for GET requests
     headers: {
       "Content-Type": "application/json",
     },
   });
 };
 
+/**
+ * Perform a POST request with support for JSON and FormData.
+ * @param url Endpoint URL (relative to `apiUrl`).
+ * @param params Request payload.
+ * @returns Axios response.
+ */
 export const post = async (url: string, params: Record<string, any> = {}) => {
-  let hasFileType = false;
-  const formData = new FormData();
+  // Determine whether payload contains files
+  const isFile = (value: any) => value instanceof File || value instanceof Blob;
 
-  for (const key in params) {
-    const value = params[key];
+  const isNestedObject = (value: any) =>
+    typeof value === "object" && value !== null && !Array.isArray(value);
 
-    // Handle files or blobs
-    if (value instanceof File || value instanceof Blob) {
-      hasFileType = true;
-      formData.append(key, value); // Add file to FormData
-    }
-    // Handle objects by checking for nested structures
-    else if (typeof value === "object" && value !== null) {
+  const hasFiles = Object.values(params).some(
+    (value) =>
+      isFile(value) ||
+      (Array.isArray(value) && value.some(isFile)) ||
+      (isNestedObject(value) && Object.values(value).some(isFile))
+  );
+
+  let data: any;
+
+  if (hasFiles) {
+    const formData = new FormData();
+    for (const key in params) {
+      const value = params[key];
       if (Array.isArray(value)) {
-        // If it's an array, append each item individually
-        value.forEach((item, index) => {
+        value.forEach((item, index) =>
           formData.append(
             `${key}[${index}]`,
-            item instanceof File ? item : JSON.stringify(item)
-          );
-        });
-        hasFileType = true;
-      } else {
-        // If it's an object, check if it contains any file
-        const hasNestedFile = Object.values(value).some(
-          (v) => v instanceof File || v instanceof Blob
+            isFile(item) ? item : JSON.stringify(item)
+          )
         );
-        if (hasNestedFile) {
-          formData.append(key, JSON.stringify(value)); // Add JSON if necessary
-          hasFileType = true;
-        } else {
-          // This allows simpler nested objects to be sent as JSON in regular request
-          formData.append(key, JSON.stringify(value)); // Serialize objects to JSON
-        }
+      } else if (isNestedObject(value)) {
+        formData.append(key, JSON.stringify(value)); // Serialize nested objects
+      } else {
+        formData.append(key, value);
       }
     }
-    // Handle primitive types (string, number, boolean)
-    else {
-      formData.append(key, value);
-    }
+    data = formData;
+  } else {
+    data = JSON.stringify(params);
   }
 
-  // Decide whether to use FormData or raw JSON depending on the presence of file uploads
-  const data = hasFileType ? formData : JSON.stringify(params);
-
-  // Make the request with the appropriate headers
-  return await axios({
-    method: "post",
-    url: `${apiUrl + url}`,
-    data: data,
+  return axios.post(`${apiUrl + url}`, data, {
     headers: {
-      // No need to set Content-Type explicitly for FormData, Axios will handle it
-      "Content-Type": hasFileType ? undefined : "application/json",
+      "Content-Type": hasFiles ? undefined : "application/json", // Let Axios handle FormData headers
     },
   });
 };
 
+/**
+ * Perform a DELETE request (mimicking POST behavior for payload).
+ * @param url Endpoint URL (relative to `apiUrl`).
+ * @param params Request payload.
+ * @returns Axios response.
+ */
 export const deleteData = async (url: string, params = {}) => {
-  return await axios({
-    method: "post",
-    url: `${apiUrl + url}`,
-    data: { ...params },
+  return axios.post(`${apiUrl + url}`, JSON.stringify(params), {
     headers: {
       "Content-Type": "application/json",
     },

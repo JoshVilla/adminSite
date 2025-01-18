@@ -262,7 +262,7 @@ const Admin = () => {
   };
 
   const handleOpenModal = (mode: string, records: any = {}) => {
-    const { username, password, isSuperAdmin, _id } = records || {};
+    const { username, password, isSuperAdmin, _id, isActive } = records || {};
     setEditId(_id);
     setMode(mode);
     setOpenAddModal(true);
@@ -272,6 +272,7 @@ const Admin = () => {
         username,
         password: base64.decode(password),
         isSuperAdmin,
+        isActive,
       }));
     }
   };
@@ -321,7 +322,6 @@ const Admin = () => {
 
   useEffect(() => {
     onLoad();
-    console.log(loading, "btnloading");
   }, [shouldLoad]);
 
   useEffect(() => {

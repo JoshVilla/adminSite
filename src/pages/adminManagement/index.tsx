@@ -55,6 +55,7 @@ const Admin = () => {
     isSuperAdmin: 1,
     createdAt: moment().format("LL"),
     avatar: "",
+    isActive: 1,
   });
   const [params, setParams] = useState<IParams>({
     username: "",
@@ -126,7 +127,7 @@ const Admin = () => {
         );
       },
       align: "center",
-      width: 100,
+      width: 200,
     },
     {
       key: 5,
@@ -192,8 +193,7 @@ const Admin = () => {
 
   const handleSave = () => {
     setLoading(true);
-    const { username, password, isSuperAdmin, avatar } = addParams;
-    console.log(addParams);
+    const { username, password, isSuperAdmin, avatar, isActive } = addParams;
 
     const params = {
       username,
@@ -201,6 +201,7 @@ const Admin = () => {
       isSuperAdmin,
       id: editId,
       avatar,
+      isActive,
     };
     saveAdmin(params).then((res) => {
       if ((res.status = 200)) {
@@ -285,6 +286,7 @@ const Admin = () => {
       isSuperAdmin: 1,
       createdAt: moment().format("LL"),
       avatar: null,
+      isActive: 1,
     });
   };
 
@@ -449,6 +451,7 @@ const Admin = () => {
             username: addParams.username,
             password: addParams.password,
             status: addParams.isSuperAdmin,
+            active: addParams.isActive,
           }}
         >
           <Form.Item label="Profile (Optional)">
@@ -506,6 +509,21 @@ const Admin = () => {
               <Radio value={-1}>Normal Admin</Radio>
             </Radio.Group>
           </Form.Item>
+          {mode === "isEditMode" && (
+            <Form.Item label="Active" name="active">
+              <Radio.Group
+                onChange={(e) => {
+                  setAddParams((prev) => ({
+                    ...prev,
+                    isActive: e.target.value,
+                  }));
+                }}
+              >
+                <Radio value={1}>On</Radio>
+                <Radio value={-1}>Off</Radio>
+              </Radio.Group>
+            </Form.Item>
+          )}
         </Form>
       </Modal>
       <Captcha

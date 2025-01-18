@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import style from "./style.module.scss";
 import { Button, Form, Input, message } from "antd";
-import { loginApi } from "@/services/api";
+import { loginApi, serverStatus } from "@/services/api";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
@@ -38,7 +38,7 @@ const Login = () => {
           }
         })
         .catch((err) => {
-          console.log(err.status);
+          console.log(err);
           setIsLoading(false);
           throwMessage(err.status, err.response.data.message);
         });
@@ -51,6 +51,17 @@ const Login = () => {
       content: msg,
     });
   };
+
+  useEffect(() => {
+    serverStatus({})
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err.config, "err");
+      });
+  }, []);
+
   return (
     <div className={style.mainContainer}>
       {contextHolder}

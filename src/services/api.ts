@@ -79,3 +79,7 @@ export const deleteOfficial = (params: {}) => {
 export const updateOfficial = (params: {}) => {
   return post(`/updateOfficial`, params);
 };
+
+export const serverStatus = (params: {}) => {
+  return get("/status", params);
+};

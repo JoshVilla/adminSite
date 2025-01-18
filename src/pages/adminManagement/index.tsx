@@ -239,10 +239,8 @@ const Admin = () => {
   const onLoad = async () => {
     try {
       const res = await getAdmins(params);
-      setLoading(true);
       if (res.status === STATUS.SUCCESS) {
         let data = res.data;
-        console.log(params, "params");
 
         setisLoading(false);
         setData(data.map((items: any) => ({ ...items, key: items._id })));
@@ -321,6 +319,7 @@ const Admin = () => {
 
   useEffect(() => {
     onLoad();
+    console.log(loading, "btnloading");
   }, [shouldLoad]);
 
   useEffect(() => {

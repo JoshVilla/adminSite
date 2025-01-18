@@ -26,8 +26,7 @@ const Login = () => {
       })
         .then((res) => {
           setIsLoading(false);
-          throwMessage(res.status, res.data.message);
-          if (res.status === 200) {
+          if (res.status === 200 && res.data.data.isActive === 1) {
             navigate("admin/adminManagement");
             dispatch(getUserInfo(res.data.data));
             if (isLoggedIn) localStorage.removeItem("status");
@@ -35,6 +34,11 @@ const Login = () => {
               localStorage.setItem("status", "loggedIn");
             };
             delayTimer(1, func);
+          } else {
+            throwMessage(
+              0,
+              "The account is inactive contact your super admin to activate the account"
+            );
           }
         })
         .catch((err) => {

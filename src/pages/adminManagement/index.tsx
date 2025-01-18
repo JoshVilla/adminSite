@@ -26,15 +26,18 @@ import { IAddParams, IParams } from "./interface";
 import modal from "antd/es/modal";
 import moment from "moment";
 import { useSelector } from "react-redux";
-import { RootState, store } from "@/store/store";
+import { RootState } from "@/store/store";
 import { useForm } from "antd/es/form/Form";
 import Captcha from "@/components/captcha/captcha";
 import { isSuperAdmin } from "@/utils/helpers";
 import TitlePage from "@/components/titlePage/titlePage";
 import { STATUS } from "@/utils/constant";
+import { useHandleLogOut } from "@/hooks/useLogout";
 
 const { RangePicker } = DatePicker;
 const Admin = () => {
+  const adminInfo = useSelector((state: RootState) => state.userInfo.userInfo);
+  const handleLogout = useHandleLogOut();
   const isLoggedIn = localStorage.getItem("status");
   const userInfo = useSelector((state: RootState) => state.userInfo);
   const [form] = useForm();
@@ -49,6 +52,8 @@ const Admin = () => {
   const [editRecords, setEditRecords] = useState({});
   const [editId, setEditId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [openVerificationActiveModal, setOpenVerificationActiveModal] =
+    useState(false);
   const [addParams, setAddParams] = useState<IAddParams>({
     username: "",
     password: "",
@@ -99,6 +104,10 @@ const Admin = () => {
       title: "Username",
       dataIndex: "username",
       align: "center",
+      render: (value, records) => {
+        const currentAccount = adminInfo?._id === records._id ? "(Me)" : "";
+        return `${value} ${currentAccount}`;
+      },
     },
     {
       key: 2,
@@ -192,7 +201,6 @@ const Admin = () => {
   };
 
   const handleSave = () => {
-    setLoading(true);
     const { username, password, isSuperAdmin, avatar, isActive } = addParams;
 
     const params = {
@@ -203,7 +211,13 @@ const Admin = () => {
       avatar,
       isActive,
     };
-    saveAdmin(params).then((res) => {
+    setLoading(true);
+    onSaveAdmin(params);
+  };
+
+  const onSaveAdmin = async (params: any) => {
+    try {
+      const res = await saveAdmin(params);
       if ((res.status = 200)) {
         onLoad();
         setOpenAddModal(false);
@@ -213,7 +227,9 @@ const Admin = () => {
           content: res.data.message,
         });
       }
-    });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const confirmDelete = (id: String) => {
@@ -439,7 +455,15 @@ const Admin = () => {
             key="submit"
             type="primary"
             htmlType="submit"
-            onClick={() => (mode === "isAddMode" ? handleAdd() : handleSave())}
+            onClick={() => {
+              if (mode === "isAddMode") {
+                handleAdd();
+              } else if (form.getFieldValue("active") === -1) {
+                setOpenVerificationActiveModal(true);
+              } else {
+                handleSave();
+              }
+            }}
           >
             {mode === "isAddMode" ? "Submit" : "Save"}
           </Button>,
@@ -525,6 +549,35 @@ const Admin = () => {
             </Form.Item>
           )}
         </Form>
+      </Modal>
+      <Modal
+        open={openVerificationActiveModal}
+        title="Are you sure?"
+        onClose={() => setOpenVerificationActiveModal(false)}
+        footer={[
+          <Button
+            onClick={() => setOpenVerificationActiveModal(false)}
+            key="no"
+          >
+            No
+          </Button>,
+          <Button
+            type="primary"
+            key="yes"
+            onClick={() => {
+              handleSave();
+              setOpenVerificationActiveModal(false);
+              handleLogout();
+              setLoading(true);
+              console.log("clicked");
+            }}
+          >
+            Yes
+          </Button>,
+        ]}
+      >
+        <p>Are sure you want to set your account to inactive?</p>
+        <p>If yes, you will automatically logout</p>
       </Modal>
       <Captcha
         open={openCaptcha}
